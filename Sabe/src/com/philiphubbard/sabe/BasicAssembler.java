@@ -23,6 +23,7 @@
 package com.philiphubbard.sabe;
 
 import com.philiphubbard.digraph.BasicDigraph;
+import com.philiphubbard.digraph.Digraph;
 import com.philiphubbard.digraph.EulerPaths;
 
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class BasicAssembler {
 		this.vertexMerLength = vertexMerLength;
 		int vertexCapacity = 0x1 << (2 * vertexMerLength);
 		
-		graph = new BasicDigraph(vertexCapacity);
+		graph = new BasicDigraph(vertexCapacity, Digraph.EdgeMultiples.ENABLED);
 		populateGraph(reads);
 	}
 	
