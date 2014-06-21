@@ -70,7 +70,7 @@ public class MRBuildVertices extends MRCollectVertexEdges {
 
 	}
 	
-	// The MRCollectVerteEdges.Reducer class can be used as is.
+	// The MRCollectVertexEdges.Reducer class can be used as is.
 	
 	//
 	
