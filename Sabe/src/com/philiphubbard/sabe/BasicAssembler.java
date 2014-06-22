@@ -62,7 +62,7 @@ public class BasicAssembler {
 		ArrayList<String> result = new ArrayList<String>();
 		
 		EulerPaths<BasicDigraph.Edge> euler = new EulerPaths<BasicDigraph.Edge>(graph);
-		ArrayList<ArrayDeque<Integer>> paths = euler.paths();
+		ArrayList<ArrayDeque<Integer>> paths = euler.getPaths();
 		
 		for (ArrayDeque<Integer> path : paths) {			
 			if (addedSinkSourceEdge)
@@ -107,13 +107,13 @@ public class BasicAssembler {
 		boolean multipleSources = false;
 		boolean multipleSinks = false;
 		
-		for (int v = 0; v < graph.vertexCapacity(); v++) {
-			if (graph.inDegree(v) == 0) {
+		for (int v = 0; v < graph.getVertexCapacity(); v++) {
+			if (graph.getInDegree(v) == 0) {
 				if (source != -1)
 					multipleSources = true;
 				source = v;
 			}
-			if (graph.outDegree(v) == 0) {
+			if (graph.getOutDegree(v) == 0) {
 				if (sink != -1)
 					multipleSinks = true;
 				sink = v;
