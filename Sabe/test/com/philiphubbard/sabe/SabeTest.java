@@ -30,6 +30,7 @@ public class SabeTest {
 
 	public static void main(String[] args) {
 		MerTest.test();
+		MerStringTest.test();
 		BasicAssemblerTest.test();
 	}
 
