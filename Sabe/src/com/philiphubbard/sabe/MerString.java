@@ -37,10 +37,10 @@ package com.philiphubbard.sabe;
 public class MerString {
 
 	public MerString(int mer, int length) {
-		int charLength = length / LettersPerChar;
-		if (length % LettersPerChar > 0)
+		int charLength = length / LETTERS_PER_CHAR;
+		if (length % LETTERS_PER_CHAR > 0)
 			charLength++;
-		charLength += HeaderLength;
+		charLength += HEADER_LENGTH;
 		char[] array = new char[charLength];
 		
 		String merString = Mer.fromInt(mer, length);
@@ -78,10 +78,10 @@ public class MerString {
 	public void merge(MerString other, int overlap) {
 		int mergedLength = this.length + other.length - overlap;
 		
-		int charLength = mergedLength / LettersPerChar;
-		if (length % LettersPerChar > 0)
+		int charLength = mergedLength / LETTERS_PER_CHAR;
+		if (length % LETTERS_PER_CHAR > 0)
 			charLength++;
-		charLength += HeaderLength;
+		charLength += HEADER_LENGTH;
 		char[] array = new char[charLength];
 		
 		for (int i = 0; i < this.string.length(); i++)
@@ -133,42 +133,42 @@ public class MerString {
 	//
 	
 	private void putHeader(char[] array) {
-		int extra = this.length % LettersPerChar;
+		int extra = this.length % LETTERS_PER_CHAR;
 		array[0] = (char) extra;
 	}
 	
 	private void getHeader(String string) {
 		int extra = (int) string.charAt(0);
-		int lengthInChars = string.length() - HeaderLength;
-		if (lengthInChars % LettersPerChar == 0)
-			this.length = LettersPerChar * lengthInChars;
+		int lengthInChars = string.length() - HEADER_LENGTH;
+		if (lengthInChars % LETTERS_PER_CHAR == 0)
+			this.length = LETTERS_PER_CHAR * lengthInChars;
 		else
-			this.length = LettersPerChar * (lengthInChars - 1) + extra;
+			this.length = LETTERS_PER_CHAR * (lengthInChars - 1) + extra;
 	}
 	
 	private void put(char[] array, int i, int letter) {
-		int iChar = i / LettersPerChar;
-		int r = i % LettersPerChar;
-		letter <<= BitsPerLetter * (LettersPerChar - 1 - r);
-		array[iChar + HeaderLength] |= letter;
+		int iChar = i / LETTERS_PER_CHAR;
+		int r = i % LETTERS_PER_CHAR;
+		letter <<= BITS_PER_LETTER * (LETTERS_PER_CHAR - 1 - r);
+		array[iChar + HEADER_LENGTH] |= letter;
 	}
 	
 	private int get(String string, int i) {
-		int iChar = i / LettersPerChar;
-		int r = i % LettersPerChar;
-		int letter = (int) string.charAt(HeaderLength + iChar);
-		letter >>>= BitsPerLetter * (LettersPerChar - 1 - r); // HEY!! (14 - 2 * r);
-		return (int) (letter & LetterBitMask);
+		int iChar = i / LETTERS_PER_CHAR;
+		int r = i % LETTERS_PER_CHAR;
+		int letter = (int) string.charAt(HEADER_LENGTH + iChar);
+		letter >>>= BITS_PER_LETTER * (LETTERS_PER_CHAR - 1 - r); // HEY!! (14 - 2 * r);
+		return (int) (letter & LETTER_BIT_MASK);
 	}
 	
-	private static final int BitsPerLetter = 2;
-	private static final int LetterBitMask = 0x3;
-	private static final int LettersPerChar = 8;
+	private static final int BITS_PER_LETTER = 2;
+	private static final int LETTER_BIT_MASK = 0x3;
+	private static final int LETTERS_PER_CHAR = 8;
 	private static final int A = 0x0;
 	private static final int C = 0x1;
 	private static final int G = 0x2;
 	private static final int T = 0x3;
-	private static final int HeaderLength = 1;
+	private static final int HEADER_LENGTH = 1;
 	
 	private int length;
 	private String string;
