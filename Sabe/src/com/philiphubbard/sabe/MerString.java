@@ -64,54 +64,54 @@ public class MerString {
 				
 		this.length = length;
 		putHeader(array);
-		this.string = new String(array);
+		string = new String(array);
 	}
 	
 	public MerString(String s) {
 		getHeader(s);
-		this.string = s;
+		string = s;
 	}
 	
 	// Merges "other" into this MerString.  Does not verify that the letters
 	// in the overlap region are actually the same.
 	
 	public void merge(MerString other, int overlap) {
-		int mergedLength = this.length + other.length - overlap;
+		int mergedLength = length + other.length - overlap;
 		
 		int charLength = mergedLength / LETTERS_PER_CHAR;
-		if (length % LETTERS_PER_CHAR > 0)
+		if (mergedLength % LETTERS_PER_CHAR > 0)
 			charLength++;
 		charLength += HEADER_LENGTH;
 		char[] array = new char[charLength];
 		
-		for (int i = 0; i < this.string.length(); i++)
-			array[i] = this.string.charAt(i);
+		for (int i = 0; i < string.length(); i++)
+			array[i] = string.charAt(i);
 		
-		int i = this.length;
+		int i = length;
 		for (int j = overlap; j < other.length; j++) {
 			int letter = get(other.string, j);
 			put(array, i++, letter);
 		}
 
-		this.length = mergedLength;
+		length = mergedLength;
 		putHeader(array);		
-		this.string = new String(array);
+		string = new String(array);
 	}
 	
 	// Outputs the encoded form of the data as a String, which is not
 	// intendend to be read by a human.
 	
 	public String toString() {
-		return this.string;
+		return string;
 	}
 	
 	// Produces a final, human-readable String for the MerString.
 	
-	public String toStringFinal() {
-		char[] array = new char[this.length];
+	public String toDisplayString() {
+		char[] array = new char[length];
 		
-		for (int i = 0; i < this.length; i++) {
-			int letter = get(this.string, i);
+		for (int i = 0; i < length; i++) {
+			int letter = get(string, i);
 			switch (letter) {
 			case A:
 				array[i] = 'A';
@@ -130,20 +130,24 @@ public class MerString {
 		return new String(array);
 	}
 	
+	public boolean equals(MerString other) {
+		return string.equals(other.string);
+	}
+	
 	//
 	
 	private void putHeader(char[] array) {
-		int extra = this.length % LETTERS_PER_CHAR;
+		int extra = length % LETTERS_PER_CHAR;
 		array[0] = (char) extra;
 	}
 	
 	private void getHeader(String string) {
 		int extra = (int) string.charAt(0);
 		int lengthInChars = string.length() - HEADER_LENGTH;
-		if (lengthInChars % LETTERS_PER_CHAR == 0)
-			this.length = LETTERS_PER_CHAR * lengthInChars;
+		if (extra == 0)
+			length = lengthInChars * LETTERS_PER_CHAR;
 		else
-			this.length = LETTERS_PER_CHAR * (lengthInChars - 1) + extra;
+			length = (lengthInChars - 1) * LETTERS_PER_CHAR + extra;
 	}
 	
 	private void put(char[] array, int i, int letter) {

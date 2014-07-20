@@ -49,7 +49,8 @@ public class Mer {
 			else if (mer.charAt(i) == 'T')
 				result |= 0x3;
 			else if (mer.charAt(i) != 'A')
-				throw new IllegalArgumentException("Mer.toInt(): mer contains illegal character");
+				throw new IllegalArgumentException("Mer.toInt(): mer contains illegal character \'" 
+						+ mer.charAt(i) + "\' [" + (int) mer.charAt(i) + "]");
 		}
 
 		return result;
