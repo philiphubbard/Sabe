@@ -27,11 +27,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.mapreduce.Job;
 
 import com.philiphubbard.digraph.MRCompressChains;
@@ -100,77 +101,48 @@ public class MRAssembler {
 		
 		FileSystem fileSystem = FileSystem.get(conf);
 		
-		buildCompressedGraph(fileSystem, branchPath, chainPath);
+		buildCompressedGraph(conf, fileSystem, branchPath, chainPath);
 		
 		//
 		
-		// HEY!!
-		//fileSystem.delete(buildOutputPath, true);
+		fileSystem.delete(buildOutputPath, true);
 		
 		fileSystem.close();	
 
 		return true;
 	}
 	
-	protected static void buildCompressedGraph(FileSystem fileSystem, Path branchPath, Path chainPath) 
+	protected static void buildCompressedGraph(Configuration conf, FileSystem fileSystem, 
+			Path branchPath, Path chainPath) 
 			throws IOException, InterruptedException {
 		ArrayList<MRVertex> vertices = new ArrayList<MRVertex>();
 		
 		FileStatus[] branchFiles = fileSystem.listStatus(branchPath);
-		for (FileStatus status : branchFiles) {
-			Path path = status.getPath();
-			if (path.getName().startsWith("part")) {
-				System.out.println(path); 
-				
-				FSDataInputStream in = fileSystem.open(path);
-				MRMerVertex.read(in, vertices);
-				in.close();
-			}
-		}
-
+		for (FileStatus status : branchFiles) 
+			readVertices(status, vertices, conf);
 		
 		FileStatus[] chainFiles = fileSystem.listStatus(chainPath);
-		for (FileStatus status : chainFiles) {
-			Path path = status.getPath();
-			if (path.getName().startsWith("part")) {
-				System.out.println(path); 
-				
-				FSDataInputStream in = fileSystem.open(path);
-				MRMerVertex.read(in, vertices);
-				in.close();
-			}
-		}
+		for (FileStatus status : chainFiles)
+			readVertices(status, vertices, conf);
 		
 		/// HEY!!
 		for (MRVertex vertex : vertices) 
 			System.out.println(vertex.toDisplayString());
 	}
 
-	/*
-	// HEY!! Better to just use a separate subdir for branch and chain?
-	private class ChainFilter extends Configured implements PathFilter {
-	    public boolean accept(Path path) {
-	    	if (fileSystem != null) {
-	    		try {
-	    			if (fileSystem.isDirectory(path))
-	    				return true;
-	    			else if (path.getName().startsWith("chain"))
-	    				return true;
-	            } catch (Exception e) { }
-	    	}
-	    	return false;
-	    }
-	        
-        public void setConf(Configuration conf) {
-        	try {
-        		fileSystem = FileSystem.get(conf);
-        	} catch (Exception e) {
-        		fileSystem = null;
-        	}
-        }
-        
-        private FileSystem fileSystem;
+	private static void readVertices(FileStatus status, ArrayList<MRVertex> vertices, Configuration conf)
+			throws IOException {
+		Path path = status.getPath();
+		if (path.getName().startsWith("part")) {
+			System.out.println(path); 
+			
+		    SequenceFile.Reader reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(path));
+		    IntWritable key = new IntWritable();
+		    BytesWritable value = new BytesWritable();
+		    while (reader.next(key, value))
+		    	vertices.add(new MRMerVertex(value));
+		    reader.close();
+		}
 	}
-	*/
 	
 }

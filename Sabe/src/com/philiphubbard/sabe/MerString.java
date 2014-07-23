@@ -37,11 +37,11 @@ package com.philiphubbard.sabe;
 public class MerString {
 
 	public MerString(int mer, int length) {
-		int charLength = length / LETTERS_PER_CHAR;
-		if (length % LETTERS_PER_CHAR > 0)
-			charLength++;
-		charLength += HEADER_LENGTH;
-		char[] array = new char[charLength];
+		int byteLength = length / LETTERS_PER_BYTE;
+		if (length % LETTERS_PER_BYTE > 0)
+			byteLength++;
+		byteLength += HEADER_LENGTH;
+		bytes = new byte[byteLength];
 		
 		String merString = Mer.fromInt(mer, length);
 		for (int i = 0; i < length; i++){
@@ -59,17 +59,29 @@ public class MerString {
 			default:
 				letter = T;
 			}
-			put(array, i, letter);
+			put(bytes, i, letter);
 		}
 				
 		this.length = length;
-		putHeader(array);
-		string = new String(array);
+		putHeader(bytes);
 	}
 	
+	// HEY!!
 	public MerString(String s) {
 		getHeader(s);
 		string = s;
+	}
+	
+	public MerString(byte[] bytes) {
+		this.bytes = bytes;
+		getHeader(this.bytes);
+	}
+	
+	public MerString(byte[] bytes, int i, int n) {
+		this.bytes = new byte[n];
+		for (int j = 0; j < n; j++)
+			this.bytes[j] = bytes[j + i];
+		getHeader(this.bytes);
 	}
 	
 	// Merges "other" into this MerString.  Does not verify that the letters
@@ -78,31 +90,36 @@ public class MerString {
 	public void merge(MerString other, int overlap) {
 		int mergedLength = length + other.length - overlap;
 		
-		int charLength = mergedLength / LETTERS_PER_CHAR;
-		if (mergedLength % LETTERS_PER_CHAR > 0)
-			charLength++;
-		charLength += HEADER_LENGTH;
-		char[] array = new char[charLength];
+		int byteLength = mergedLength / LETTERS_PER_BYTE;
+		if (mergedLength % LETTERS_PER_BYTE > 0)
+			byteLength++;
+		byteLength += HEADER_LENGTH;
+		byte[] result = new byte[byteLength];
 		
-		for (int i = 0; i < string.length(); i++)
-			array[i] = string.charAt(i);
+		for (int i = 0; i < bytes.length; i++)
+			result[i] = bytes[i];
 		
 		int i = length;
 		for (int j = overlap; j < other.length; j++) {
-			int letter = get(other.string, j);
-			put(array, i++, letter);
+			int letter = get(other.bytes, j);
+			put(result, i++, letter);
 		}
 
 		length = mergedLength;
-		putHeader(array);		
-		string = new String(array);
+		putHeader(result);		
+		bytes = result;
 	}
 	
+	// HEY!!
 	// Outputs the encoded form of the data as a String, which is not
 	// intendend to be read by a human.
 	
 	public String toString() {
 		return string;
+	}
+	
+	public byte[] toBytes() {
+		return bytes;
 	}
 	
 	// Produces a final, human-readable String for the MerString.
@@ -111,7 +128,7 @@ public class MerString {
 		char[] array = new char[length];
 		
 		for (int i = 0; i < length; i++) {
-			int letter = get(string, i);
+			int letter = get(bytes, i);
 			switch (letter) {
 			case A:
 				array[i] = 'A';
@@ -126,12 +143,17 @@ public class MerString {
 				array[i] = 'T';
 			}
 		}
-		
+
 		return new String(array);
 	}
 	
 	public boolean equals(MerString other) {
-		return string.equals(other.string);
+		if (bytes.length != other.bytes.length)
+			return false;
+		for (int i = 0; i < bytes.length; i++)
+			if (bytes[i] != other.bytes[i])
+				return false;
+		return true;
 	}
 	
 	//
@@ -161,13 +183,46 @@ public class MerString {
 		int iChar = i / LETTERS_PER_CHAR;
 		int r = i % LETTERS_PER_CHAR;
 		int letter = (int) string.charAt(HEADER_LENGTH + iChar);
-		letter >>>= BITS_PER_LETTER * (LETTERS_PER_CHAR - 1 - r); // HEY!! (14 - 2 * r);
+		letter >>>= BITS_PER_LETTER * (LETTERS_PER_CHAR - 1 - r);
+		return (int) (letter & LETTER_BIT_MASK);
+	}
+	
+	private void putHeader(byte[] array) {
+		int extra = length % LETTERS_PER_BYTE;
+		array[0] = (byte) extra;
+	}
+	
+	private void getHeader(byte[] array) {
+		int extra = (int) array[0];
+		int lengthInBytes = bytes.length - HEADER_LENGTH;
+		if (extra == 0)
+			length = lengthInBytes * LETTERS_PER_BYTE;
+		else
+			length = (lengthInBytes - 1) * LETTERS_PER_BYTE + extra;
+	}
+	
+	private static void put(byte[] array, int i, int letter) {
+		int iByte = i / LETTERS_PER_BYTE;
+		int r = i % LETTERS_PER_BYTE;
+		letter <<= BITS_PER_LETTER * (LETTERS_PER_BYTE - 1 - r);
+		array[iByte + HEADER_LENGTH] |= letter;
+	}
+	
+	private static int get(byte[] array, int i) {
+		int iByte = i / LETTERS_PER_BYTE;
+		int r = i % LETTERS_PER_BYTE;
+		int letter = (int) array[HEADER_LENGTH + iByte];
+		letter >>>= BITS_PER_LETTER * (LETTERS_PER_BYTE - 1 - r);
 		return (int) (letter & LETTER_BIT_MASK);
 	}
 	
 	private static final int BITS_PER_LETTER = 2;
 	private static final int LETTER_BIT_MASK = 0x3;
+	
+	// HEY!!
 	private static final int LETTERS_PER_CHAR = 8;
+
+	private static final int LETTERS_PER_BYTE = 4;
 	private static final int A = 0x0;
 	private static final int C = 0x1;
 	private static final int G = 0x2;
@@ -175,5 +230,8 @@ public class MerString {
 	private static final int HEADER_LENGTH = 1;
 	
 	private int length;
+	private byte[] bytes;
+	
+	// HEY!!
 	private String string;
 }

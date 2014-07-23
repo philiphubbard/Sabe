@@ -22,16 +22,9 @@
 
 package com.philiphubbard.sabe;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
+import org.apache.hadoop.io.BytesWritable;
 
 import com.philiphubbard.digraph.MRVertex;
-
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.io.Text;
 
 public class MRMerVertex extends MRVertex {
 	
@@ -50,12 +43,8 @@ public class MRMerVertex extends MRVertex {
 		merString = null; // HEY!! new MerString(id, merLength);
 	}
 	
-	public MRMerVertex(Text text) {
-		this(text.toString());
-	}
-	
-	public MRMerVertex(String string) {
-		super(string);
+	public MRMerVertex(BytesWritable writable) {
+		super(writable);
 	}
 	
 	public MerString getMerString() {
@@ -104,19 +93,6 @@ public class MRMerVertex extends MRVertex {
 		return s.toString();
 	}
 
-	// HEY!! How to make a general version of this instead of duplicating it?
-	public static void read(FSDataInputStream in, ArrayList<MRVertex> vertices) throws IOException {
-		InputStreamReader inReader = new InputStreamReader(in, Charset.forName("UTF-8"));
-		BufferedReader bufferedReader = new BufferedReader(inReader);
-		String line;
-		while((line = bufferedReader.readLine()) != null) {
-			String[] tokens = line.split("\t", 2);
-			MRVertex vertex = new MRMerVertex(tokens[1]);
-			vertices.add(vertex);
-		}
-	}
-	
-
 	//
 	
 	protected void mergeInternal(MRVertex other) {
@@ -140,25 +116,14 @@ public class MRMerVertex extends MRVertex {
 		}
 	}
 	
-	protected String toTextInternal() {
-		/* HEY!!
-		if (merString != null) {
-			String s0 = new String("*");
-			String s1 = s0 + merString.toString();
-			System.out.print("Test string concat: ");
-			for (char c : s1.toCharArray())	
-				System.out.printf("%02x ", (int) c);
-		}
-		*/
-			
+	protected byte[] toWritableInternal() {
 		if (merString != null)
-			return merString.toString();
+			return merString.toBytes();
 		else
 			return null;
 	}
-	
-	protected void fromTextInternal(String s) {
-		merString = new MerString(s);
+	protected void fromWritableInternal(byte[] array, int i, int n) {
+		merString = new MerString(array, i, n);
 	}
 	
 	//

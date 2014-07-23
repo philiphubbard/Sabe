@@ -25,7 +25,7 @@ package com.philiphubbard.sabe;
 import java.io.IOException;
 
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.mapreduce.Job;
 
 import com.philiphubbard.digraph.MRCompressChains;
@@ -44,7 +44,7 @@ public class MRCompressMerChains extends MRCompressChains {
 
 	public static class Mapper extends MRCompressChains.Mapper {
 
-		protected MRVertex createMRVertex(Text value) {
+		protected MRVertex createMRVertex(BytesWritable value) {
 			
 			// HEY!! Debug
 			MRMerVertex vertex = new MRMerVertex(value); 
@@ -59,7 +59,7 @@ public class MRCompressMerChains extends MRCompressChains {
 
 	public static class Reducer extends MRCompressChains.Reducer {
 
-		protected MRVertex createMRVertex(Text value) {
+		protected MRVertex createMRVertex(BytesWritable value) {
 			
 			// HEY!! Debug
 			MRMerVertex vertex = new MRMerVertex(value); 

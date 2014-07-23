@@ -24,7 +24,7 @@ package com.philiphubbard.sabe;
 
 import com.philiphubbard.digraph.MRVertex;
 
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.BytesWritable;
 
 public class MRMerVertexTest {
 
@@ -65,7 +65,7 @@ public class MRMerVertexTest {
 		
 		assert (mv1.getMerString().equals(ms1_2));
 		
-		Text t1_2 = mv1.toText(MRVertex.EdgeFormat.EDGES_TO);
+		BytesWritable t1_2 = mv1.toWritable(MRVertex.EdgeFormat.EDGES_TO);
 		MRMerVertex mv1a = new MRMerVertex(t1_2);
 		
 		assert (mv1a.equals(mv1));
@@ -79,7 +79,7 @@ public class MRMerVertexTest {
 		
 		assert (mv3.getMerString().equals(ms3_4));
 		
-		Text t3_4 = mv3.toText(MRVertex.EdgeFormat.EDGES_TO);
+		BytesWritable t3_4 = mv3.toWritable(MRVertex.EdgeFormat.EDGES_TO);
 		MRMerVertex mv3a = new MRMerVertex(t3_4);
 		
 		assert (mv3a.equals(mv3));
@@ -93,7 +93,7 @@ public class MRMerVertexTest {
 		
 		assert (mv1.getMerString().equals(ms1_4));
 		
-		Text t1_4 = mv1.toText(MRVertex.EdgeFormat.EDGES_TO);
+		BytesWritable t1_4 = mv1.toWritable(MRVertex.EdgeFormat.EDGES_TO);
 		MRMerVertex mv1b = new MRMerVertex(t1_4);
 		
 		assert (mv1b.equals(mv1));
@@ -106,7 +106,7 @@ public class MRMerVertexTest {
 		int m10 = Mer.toInt("TCG");
 		MRMerVertex mv10 = new MRMerVertex(m10);
 		
-		Text t10a = mv10.toText(MRVertex.EdgeFormat.EDGES_TO);
+		BytesWritable t10a = mv10.toWritable(MRVertex.EdgeFormat.EDGES_TO);
 		MRMerVertex mv10a = new MRMerVertex(t10a);
 		
 		System.out.println("mv10a " + mv10a.toDisplayString());
@@ -119,7 +119,7 @@ public class MRMerVertexTest {
 		mv11.addEdgeTo(Mer.toInt("GAG"));
 		mv10.merge(mv11);
 		
-		Text t10b = mv10.toText(MRVertex.EdgeFormat.EDGES_TO);
+		BytesWritable t10b = mv10.toWritable(MRVertex.EdgeFormat.EDGES_TO);
 		MRMerVertex mv10b = new MRMerVertex(t10b);
 		
 		// HEY!!

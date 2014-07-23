@@ -35,56 +35,56 @@ public class MerStringTest {
 		int m1 = Mer.toInt(s1);
 		MerString ms1 = new MerString(m1, 1);
 		assert (ms1.toDisplayString().equals(s1));
-		String s1a = ms1.toString();
-		MerString ms1a = new MerString(s1a);
+		byte[] b1a = ms1.toBytes();
+		MerString ms1a = new MerString(b1a);
 		assert (ms1a.toDisplayString().equals(s1));
 		
 		String s2 = "CG";
 		int m2 = Mer.toInt(s2);
 		MerString ms2 = new MerString(m2, 2);
 		assert (ms2.toDisplayString().equals(s2));
-		String s2a = ms2.toString();
-		MerString ms2a = new MerString(s2a);
+		byte[] b2a = ms2.toBytes();
+		MerString ms2a = new MerString(b2a);
 		assert (ms2a.toDisplayString().equals(s2));
 		
 		String s3 = "GTA";
 		int m3 = Mer.toInt(s3);
 		MerString ms3 = new MerString(m3, 3);
 		assert (ms3.toDisplayString().equals(s3));
-		String s3a = ms3.toString();
-		MerString ms3a = new MerString(s3a);
+		byte[] b3a = ms3.toBytes();
+		MerString ms3a = new MerString(b3a);
 		assert (ms3a.toDisplayString().equals(s3));
 		
 		String s4 = "TACG";
 		int m4 = Mer.toInt(s4);
 		MerString ms4 = new MerString(m4, 4);
 		assert (ms4.toDisplayString().equals(s4));
-		String s4a = ms4.toString();
-		MerString ms4a = new MerString(s4a);
+		byte[] b4a = ms4.toBytes();
+		MerString ms4a = new MerString(b4a);
 		assert (ms4a.toDisplayString().equals(s4));
 		
 		String s5 = "CGTAC";
 		int m5 = Mer.toInt(s5);
 		MerString ms5 = new MerString(m5, 5);
 		assert (ms5.toDisplayString().equals(s5));
-		String s5a = ms5.toString();
-		MerString ms5a = new MerString(s5a);
+		byte[] b5a = ms5.toBytes();
+		MerString ms5a = new MerString(b5a);
 		assert (ms5a.toDisplayString().equals(s5));
 		
 		String s6 = "ACGTAC";
 		int m6 = Mer.toInt(s6);
 		MerString ms6 = new MerString(m6, 6);
 		assert (ms6.toDisplayString().equals(s6));
-		String s6a = ms6.toString();
-		MerString ms6a = new MerString(s6a);
+		byte[] b6a = ms6.toBytes();
+		MerString ms6a = new MerString(b6a);
 		assert (ms6a.toDisplayString().equals(s6));
 		
 		ms2.merge(ms3, 1);
 		String s2_3 = "CGTA";
 		assert (ms2.toDisplayString().equals(s2_3));
 		
-		String s2b = ms2.toString();
-		MerString ms2b = new MerString(s2b);
+		byte[] b2b = ms2.toBytes();
+		MerString ms2b = new MerString(b2b);
 		assert (ms2b.toDisplayString().equals(s2_3));
 		
 		ms3.merge(ms4, 2);
@@ -127,24 +127,24 @@ public class MerStringTest {
 		int m10 = Mer.toInt(s10);
 		MerString ms10 = new MerString(m10, 8);
 		assert (ms10.toDisplayString().equals(s10));
-		String s10a = ms10.toString();
-		MerString ms10a = new MerString(s10a);
+		byte[] b10a = ms10.toBytes();
+		MerString ms10a = new MerString(b10a);
 		assert (ms10a.toDisplayString().equals(s10));
 		
 		String s11 = "ACGTACGTTGCA";
 		int m11 = Mer.toInt(s11);
 		MerString ms11 = new MerString(m11, 12);
 		assert (ms11.toDisplayString().equals(s11));
-		String s11a = ms11.toString();
-		MerString ms11a = new MerString(s11a);
+		byte[] b11a = ms11.toBytes();
+		MerString ms11a = new MerString(b11a);
 		assert (ms11a.toDisplayString().equals(s11));
 				
 		String s12 = "ACGTACGTTGCATGC";
 		int m12 = Mer.toInt(s12);
 		MerString ms12 = new MerString(m12, 15);
 		assert (ms12.toDisplayString().equals(s12));
-		String s12a = ms12.toString();
-		MerString ms12a = new MerString(s12a);
+		byte[] b12a = ms12.toBytes();
+		MerString ms12a = new MerString(b12a);
 		assert (ms12a.toDisplayString().equals(s12));
 		
 		System.out.println("MerString passed");
