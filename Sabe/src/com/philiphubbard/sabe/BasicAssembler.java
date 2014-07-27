@@ -73,6 +73,7 @@ public class BasicAssembler {
 				if (seq.length() == 0)
 					seq = Mer.fromInt(v, vertexMerLength);
 				else
+					// HEY!! Don't use += on String?
 					seq += Mer.fromInt(v, 1);
 			}
 			

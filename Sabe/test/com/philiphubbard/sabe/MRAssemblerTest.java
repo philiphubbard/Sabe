@@ -38,11 +38,10 @@ public class MRAssemblerTest {
 		
 		setupTest(conf);
 		
-		MRAssembler.run(new Path(testInput), new Path(testOutput), MER_LENGTH);
+		MRAssembler assembler = new MRAssembler(MER_LENGTH);
+		assembler.run(new Path(testInput), new Path(testOutput));
 		
 		cleanupTest(conf);
-		
-		//
 		
 		System.exit(0);
 	}
@@ -92,10 +91,12 @@ public class MRAssemblerTest {
 	}
 	
 	private static void cleanupTest(Configuration conf) throws IOException {
+		System.out.println("ACGTACAGTCGAGCCTCTACAGTCATG");
+		
 		FileSystem fileSystem = FileSystem.get(conf);
 		
+		fileSystem.delete(new Path(testInput), true);
 		// HEY!!
-		//fileSystem.delete(new Path(testInput), true);
 		//fileSystem.delete(new Path(testOutput), true);
 		
 		fileSystem.close();
