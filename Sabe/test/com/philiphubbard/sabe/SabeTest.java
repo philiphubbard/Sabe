@@ -33,6 +33,7 @@ public class SabeTest {
 		MerStringTest.test();
 		BasicAssemblerTest.test();
 		MRMerVertexTest.test();
+		SingleRepetitionsTest.test();
 	}
 
 }
