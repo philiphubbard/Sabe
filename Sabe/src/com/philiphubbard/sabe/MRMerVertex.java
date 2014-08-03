@@ -95,7 +95,7 @@ public class MRMerVertex extends MRVertex {
 
 	//
 	
-	protected void mergeInternal(MRVertex other) {
+	protected void compressChainInternal(MRVertex other) {
 		if (other instanceof MRMerVertex) {
 			MRMerVertex otherMer = (MRMerVertex) other;
 
