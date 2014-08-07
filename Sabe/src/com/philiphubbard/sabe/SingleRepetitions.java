@@ -35,9 +35,9 @@ public class SingleRepetitions {
 		StrongComponents<BasicDigraph.Edge> strongComps = 
 				new StrongComponents<BasicDigraph.Edge>(graph);
 		
-		boolean[] visited = new boolean[graph.getVertexCapacity()];
-		for (int i = 0; i < visited.length; i++)
-			visited[i] = false;
+		boolean[] wasVisited = new boolean[graph.getVertexCapacity()];
+		for (int i = 0; i < wasVisited.length; i++)
+			wasVisited[i] = false;
 		
 		ArrayDeque<State> stack = new ArrayDeque<State>();
 		stack.push(new State(graph, 0, 0));
@@ -50,9 +50,16 @@ public class SingleRepetitions {
 			if (!state.done()) {
 				int vertex = edges.get(0).getTo();
 				
+				// HEY!!
+				System.out.println("Visiting vertex " + vertex);
+				
 				stack.push(new State(graph, vertex, edges.size()));
 				
 				if (isBranch[vertex]) {
+					
+					// HEY!!
+					System.out.println("Vertex " + vertex + " is branch");
+
 					if (isFeasibleRepetition(stack, isBranch, strongComps, coverage)) {
 						forceMultiplicity(2, stack, graph);
 					}
@@ -65,10 +72,10 @@ public class SingleRepetitions {
 					forceMultiplicity(1, stack, graph);
 				}
 				
-				if (visited[vertex]) 
+				if (wasVisited[vertex]) 
 					stack.pop();
 				else
-					visited[vertex] = true;
+					wasVisited[vertex] = true;
 			}
 			else {
 				stack.pop();
@@ -89,6 +96,10 @@ public class SingleRepetitions {
 		
 		int vertex = stack.peek().vertex;
 		for (State state : stack) {
+			
+			// HEY!!
+			System.out.println("multiplicity " + state.multiplicity + " min " + minMultiplicity + " coverage " + coverage);
+			
 			if (state.isEnd) {
 				return (isBranch[state.vertex] && 
 						strongComps.isStronglyReachable(vertex, state.vertex));
@@ -103,6 +114,10 @@ public class SingleRepetitions {
 	
 	private static void forceMultiplicity(int multiplicity, ArrayDeque<State> stack, 
 			BasicDigraph graph) {
+		
+		// HEY!!
+		System.out.println("Forcing multiplicity " + multiplicity);
+		
 		State prev = null;
 		for (State curr : stack) {
 			if (prev != null) {

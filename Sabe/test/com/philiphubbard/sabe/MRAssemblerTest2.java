@@ -31,14 +31,14 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 
-public class MRAssemblerTest {
+public class MRAssemblerTest2 {
 	
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 		
 		setupTest(conf);
 		
-		MRAssembler assembler = new MRAssembler(MER_LENGTH);
+		MRAssembler assembler = new MRAssembler(MER_LENGTH, COVERAGE);
 		assembler.run(new Path(testInput), new Path(testOutput));
 		
 		cleanupTest(conf);
@@ -54,30 +54,26 @@ public class MRAssemblerTest {
 			fileSystem.delete(path, true);
 		
 		ArrayList<Text> reads = new ArrayList<Text>();
-		reads.add(new Text("ACGT\n"));
-		reads.add(new Text("CGTA\n"));
-		reads.add(new Text("GTAC\n"));
-		reads.add(new Text("TACA\n")); // branch, start of repeated section
-		reads.add(new Text("ACAG\n"));
-		reads.add(new Text("CAGT\n"));
-		reads.add(new Text("AGTC\n"));
-		reads.add(new Text("GTCG\n")); // branch, end of repeated section
-		reads.add(new Text("TCGA\n"));
-		reads.add(new Text("CGAG\n"));
-		reads.add(new Text("GAGC\n"));
-		reads.add(new Text("AGCC\n"));
-		reads.add(new Text("GCCT\n"));
-		reads.add(new Text("CCTC\n"));
-		reads.add(new Text("CTCT\n"));
-		reads.add(new Text("TCTA\n"));
-		reads.add(new Text("CTAC\n"));
-		reads.add(new Text("TACA\n")); // branch, start of repeated section, again
-		reads.add(new Text("ACAG\n"));
-		reads.add(new Text("CAGT\n"));
-		reads.add(new Text("AGTC\n"));
-		reads.add(new Text("GTCA\n")); // branch, end of repeated section, again
-		reads.add(new Text("TCAT\n"));
-		reads.add(new Text("CATG\n"));
+		
+		// Error: omission of T at end of read.
+		reads.add(new Text("CATGGATC\n"));
+		reads.add(new Text("TGGAAATTCTTGCCCGGATTTAAGGGTGCCCGGATTTGGCGGGTTCTTGGAAAACCGT\n"));
+		
+		// Error: middle should be TTCTt not TTCTc.
+		reads.add(new Text("CATGGATCTTGGAAATTCTCGCCCGGATTTAAGGG\n"));
+		reads.add(new Text("TGCCCGGATTTGGCGGGTTCTTGGAAAACCGT\n"));
+		
+		reads.add(new Text("CATGGATCTTGGAAATTCTTGCCCGGATTTAAGGGTGCCCGGATTTGGCGGGTTC\n"));
+		// Error: should start TTGgaAAA not TTGagAAA
+		reads.add(new Text("TTGAGAAACCGT\n"));
+
+		reads.add(new Text("CATGGATCTTGGAAATTCT\n"));
+		// Error: omission of T at the beginning and end of read
+		reads.add(new Text("GCCCGGATTTAAGGGTGCCCGGATTTGGCGGGTTCTTGGAAAACCG\n"));
+
+		// Error: read should start with CaT not CgT
+		reads.add(new Text("CGTGGATCTTGGAAATTCTTGCCCGGATTTAAGGGTGCCCGGATTTGG\n"));
+		reads.add(new Text("CGGGTTCTTGGAAAACCGT\n"));
 
 		FSDataOutputStream out = fileSystem.create(path);
 		for (Text read : reads) {
@@ -91,7 +87,7 @@ public class MRAssemblerTest {
 	}
 	
 	private static void cleanupTest(Configuration conf) throws IOException {
-		System.out.println("ACGTACAGTCGAGCCTCTACAGTCATG");
+		System.out.println("CATGGATCTTGGAAATTCTTGCCCGGATTTAAGGGTGCCCGGATTTGGCGGGTTCTTGGAAAACCGT");
 		
 		FileSystem fileSystem = FileSystem.get(conf);
 		
@@ -102,7 +98,8 @@ public class MRAssemblerTest {
 		fileSystem.close();
 	}
 	
-	private static final int MER_LENGTH = 3;
+	private static final int MER_LENGTH = 6;
+	private static final int COVERAGE = 5;
 	private static String testInput = new String("MRAssemblerTest_in.txt");
 	private static String testOutput = new String("MRAssemblerTest_out");
 }

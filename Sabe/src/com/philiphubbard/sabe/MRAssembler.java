@@ -42,12 +42,12 @@ import com.philiphubbard.digraph.Digraph;
 import com.philiphubbard.digraph.EulerPaths;
 import com.philiphubbard.digraph.MRCompressChains;
 import com.philiphubbard.digraph.MRVertex;
-import com.philiphubbard.sabe.MRBuildMerVertices;
 
 public class MRAssembler {
 
-	public MRAssembler(int vertexMerLength) {
+	public MRAssembler(int vertexMerLength, int coverage) {
 		this.vertexMerLength = vertexMerLength;
+		this.coverage = coverage;
 	}
 	
 	// HEY!! More specific about exceptions thrown?  Make that change elsewhere?
@@ -74,6 +74,7 @@ public class MRAssembler {
 		MRBuildMerVertices.setupJob(buildJob, buildInputPath, buildOutputPath);	
 		MRBuildMerVertices.setPartitionBranchesChains(true);
 		MRBuildMerVertices.setVertexMerLength(vertexMerLength);
+		MRBuildMerVertices.setCoverage(coverage);
 		
 		if (!buildJob.waitForCompletion(true))
 			return false;
@@ -164,7 +165,9 @@ public class MRAssembler {
 		public Graph(ArrayList<MRMerVertex> vertices) {
 			mers = new int[vertices.size()];
 			merStrings = new MerString[vertices.size()];
-			merToIndex = new HashMap<Integer, Integer>(vertices.size());
+			
+			HashMap<Integer, Integer> merToIndex = new HashMap<Integer, Integer>(vertices.size());
+			boolean[] isBranch = new boolean[vertices.size()];
 			
 			MRMerVertex source = null;
 			MRMerVertex sink = null;
@@ -195,6 +198,7 @@ public class MRAssembler {
 				mers[j] = vertex.getId();
 				merStrings[j] = vertex.getMerString();
 				merToIndex.put(mers[j], j);
+				isBranch[j] = vertex.getIsBranch();
 				
 				// HEY!!
 				if (merStrings[j] != null)
@@ -224,12 +228,23 @@ public class MRAssembler {
 				System.out.print("\n");
 			}
 			
+			SingleRepetitions.rectify(graph, coverage, isBranch);
+
 			addedSinkSourceEdge = false;
 			if ((source != null) && (sink != null)) {
 				int from = merToIndex.get(sink.getId()).intValue();
 				int to = merToIndex.get(source.getId()).intValue();
 				graph.addEdge(from, new BasicDigraph.Edge(to));
 				addedSinkSourceEdge = true;
+			}
+			
+			// HEY!!
+			for (int v = 0; v < graph.getVertexCapacity(); v++) {
+				BasicDigraph.AdjacencyIterator it = graph.createAdjacencyIterator(v);
+				System.out.print(v + ": ");
+				for (BasicDigraph.Edge to = it.begin(); !it.done(); to = it.next())
+					System.out.print(to.getTo() + " ");
+				System.out.print("\n");
 			}
 		}
 		
@@ -272,11 +287,11 @@ public class MRAssembler {
 		
 		private int[] mers;
 		private MerString[] merStrings;
-		private HashMap<Integer, Integer> merToIndex;
 		private BasicDigraph graph;
 		private boolean addedSinkSourceEdge;
 	}
 
 	private int vertexMerLength;
+	private int coverage;
 	
 }
