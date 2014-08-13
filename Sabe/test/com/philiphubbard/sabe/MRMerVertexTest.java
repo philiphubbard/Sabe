@@ -22,32 +22,37 @@
 
 package com.philiphubbard.sabe;
 
-import com.philiphubbard.digraph.MRVertex;
+import java.lang.Class;
+import java.lang.reflect.Constructor;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.BytesWritable;
+
+import com.philiphubbard.digraph.MRVertex;
 
 public class MRMerVertexTest {
 
 	public static void test() {
 		System.out.println("Testing MRMerVertex:");
 		
-		MRMerVertex.setMerLength(5);
+		Configuration config = new Configuration();
+		config.setInt(MRMerVertex.CONFIG_MER_LENGTH, 5);
 		
 		String s1 = "ACGTA";
 		int m1 = Mer.toInt(s1);
-		MRMerVertex mv1 = new MRMerVertex(m1);
+		MRMerVertex mv1 = new MRMerVertex(m1, config);
 		
 		String s2 = "CGTAC";
 		int m2 = Mer.toInt(s2);
-		MRMerVertex mv2 = new MRMerVertex(m2);
+		MRMerVertex mv2 = new MRMerVertex(m2, config);
 
 		String s3 = "GTACG";
 		int m3 = Mer.toInt(s3);
-		MRMerVertex mv3 = new MRMerVertex(m3);
+		MRMerVertex mv3 = new MRMerVertex(m3, config);
 		
 		String s4 = "TACGT";
 		int m4 = Mer.toInt(s4);
-		MRMerVertex mv4 = new MRMerVertex(m4);
+		MRMerVertex mv4 = new MRMerVertex(m4, config);
 		
 		String s5 = "ACGTT";
 		int m5 = Mer.toInt(s5);
@@ -57,7 +62,7 @@ public class MRMerVertexTest {
 		mv3.addEdgeTo(m4);
 		mv4.addEdgeTo(m5);
 		
-		mv1.compressChain(mv2);
+		mv1.compressChain(mv2, config);
 		
 		String s1_2 = "ACGTAC";
 		int m1_2 = Mer.toInt(s1_2);
@@ -66,12 +71,12 @@ public class MRMerVertexTest {
 		assert (mv1.getMerString().equals(ms1_2));
 		
 		BytesWritable t1_2 = mv1.toWritable(MRVertex.EdgeFormat.EDGES_TO);
-		MRMerVertex mv1a = new MRMerVertex(t1_2);
+		MRMerVertex mv1a = new MRMerVertex(t1_2, config);
 		
 		assert (mv1a.equals(mv1));
 		assert (mv1a.getMerString().equals(ms1_2));
 		
-		mv3.compressChain(mv4);
+		mv3.compressChain(mv4, config);
 		
 		String s3_4 = "GTACGT";
 		int m3_4 = Mer.toInt(s3_4);
@@ -80,12 +85,12 @@ public class MRMerVertexTest {
 		assert (mv3.getMerString().equals(ms3_4));
 		
 		BytesWritable t3_4 = mv3.toWritable(MRVertex.EdgeFormat.EDGES_TO);
-		MRMerVertex mv3a = new MRMerVertex(t3_4);
+		MRMerVertex mv3a = new MRMerVertex(t3_4, config);
 		
 		assert (mv3a.equals(mv3));
 		assert (mv3a.getMerString().equals(ms3_4));
 		
-		mv1.compressChain(mv3);
+		mv1.compressChain(mv3, config);
 		
 		String s1_4 = "ACGTACGT";
 		int m1_4 = Mer.toInt(s1_4);
@@ -94,39 +99,35 @@ public class MRMerVertexTest {
 		assert (mv1.getMerString().equals(ms1_4));
 		
 		BytesWritable t1_4 = mv1.toWritable(MRVertex.EdgeFormat.EDGES_TO);
-		MRMerVertex mv1b = new MRMerVertex(t1_4);
+		MRMerVertex mv1b = new MRMerVertex(t1_4, config);
 		
 		assert (mv1b.equals(mv1));
 		assert (mv1b.getMerString().equals(ms1_4));
 		
 		//
 		
-		MRMerVertex.setMerLength(3);
+		config.setInt(MRMerVertex.CONFIG_MER_LENGTH, 3);
 		
 		int m10 = Mer.toInt("TCG");
-		MRMerVertex mv10 = new MRMerVertex(m10);
+		MRMerVertex mv10 = new MRMerVertex(m10, config);
 		
 		BytesWritable t10a = mv10.toWritable(MRVertex.EdgeFormat.EDGES_TO);
-		MRMerVertex mv10a = new MRMerVertex(t10a);
+		MRMerVertex mv10a = new MRMerVertex(t10a, config);
 		
 		System.out.println("mv10a " + mv10a.toDisplayString());
 
 		
 		int m11 = Mer.toInt("CGA");
-		MRMerVertex mv11 = new MRMerVertex(m11);
+		MRMerVertex mv11 = new MRMerVertex(m11, config);
 
 		mv10.addEdgeTo(m11);
 		mv11.addEdgeTo(Mer.toInt("GAG"));
-		mv10.compressChain(mv11);
+		mv10.compressChain(mv11, config);
 		
 		BytesWritable t10b = mv10.toWritable(MRVertex.EdgeFormat.EDGES_TO);
-		MRMerVertex mv10b = new MRMerVertex(t10b);
+		MRMerVertex mv10b = new MRMerVertex(t10b, config);
 		
-		// HEY!!
-		// TCGA : T 11 C 01 G 10 A 00 : 0xD8
-		// 0x3f 0011 1111
-		
-		assert(mv10.equals(mv10b));
+		assert (mv10.equals(mv10b));
 		
 		System.out.println("MRMerVertex passed.");
 	}

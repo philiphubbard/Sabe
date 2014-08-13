@@ -24,6 +24,7 @@ package com.philiphubbard.sabe;
 
 import java.io.IOException;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.mapreduce.Job;
@@ -44,30 +45,24 @@ public class MRCompressMerChains extends MRCompressChains {
 
 	public static class Mapper extends MRCompressChains.Mapper {
 
-		protected MRVertex createMRVertex(BytesWritable value) {
+		protected MRVertex createMRVertex(BytesWritable value, Configuration config) {
 			
 			// HEY!! Debug
-			MRMerVertex vertex = new MRMerVertex(value); 
+			MRMerVertex vertex = new MRMerVertex(value, config); 
 			System.out.println("** createMRVertex(); created " + vertex.toDisplayString() + " **");
 			return vertex;
-
-			// HEY!! Orig
-			//return new MRMerVertex(value);
 		}
 		
 	}
 
 	public static class Reducer extends MRCompressChains.Reducer {
 
-		protected MRVertex createMRVertex(BytesWritable value) {
+		protected MRVertex createMRVertex(BytesWritable value, Configuration config) {
 			
 			// HEY!! Debug
-			MRMerVertex vertex = new MRMerVertex(value); 
+			MRMerVertex vertex = new MRMerVertex(value, config); 
 			System.out.println("** createMRVertex(); created " + vertex.toDisplayString() + " **");
 			return vertex;
-
-			// HEY!! Orig
-			//return new MRMerVertex(value);
 		}
 
 	}

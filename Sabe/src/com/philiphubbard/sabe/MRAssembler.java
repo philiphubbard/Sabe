@@ -40,6 +40,7 @@ import org.apache.hadoop.mapreduce.Job;
 import com.philiphubbard.digraph.BasicDigraph;
 import com.philiphubbard.digraph.Digraph;
 import com.philiphubbard.digraph.EulerPaths;
+import com.philiphubbard.digraph.MRBuildVertices;
 import com.philiphubbard.digraph.MRCompressChains;
 import com.philiphubbard.digraph.MRVertex;
 
@@ -55,8 +56,13 @@ public class MRAssembler {
 			throws IOException, InterruptedException, ClassNotFoundException {
 		Configuration conf = new Configuration();
 		
-		//
+		// Job.getInstance() copies the Configuration argument, so set its properties first.
 		
+		conf.setBoolean(MRVertex.CONFIG_ALLOW_EDGE_MULTIPLES, true);
+		conf.setInt(MRMerVertex.CONFIG_MER_LENGTH, vertexMerLength);
+		conf.setBoolean(MRBuildVertices.CONFIG_PARTITION_BRANCHES_CHAINS, true);
+		conf.setInt(MRBuildVertices.CONFIG_COVERAGE, coverage);
+
 		Job buildJob = Job.getInstance(conf);
 		buildJob.setJobName("mrassemblerbuild");
 		
@@ -72,9 +78,6 @@ public class MRAssembler {
 		*/
 
 		MRBuildMerVertices.setupJob(buildJob, buildInputPath, buildOutputPath);	
-		MRBuildMerVertices.setPartitionBranchesChains(true);
-		MRBuildMerVertices.setVertexMerLength(vertexMerLength);
-		MRBuildMerVertices.setCoverage(coverage);
 		
 		if (!buildJob.waitForCompletion(true))
 			return false;
@@ -156,7 +159,7 @@ public class MRAssembler {
 		    IntWritable key = new IntWritable();
 		    BytesWritable value = new BytesWritable();
 		    while (reader.next(key, value))
-		    	vertices.add(new MRMerVertex(value));
+		    	vertices.add(new MRMerVertex(value, conf));
 		    reader.close();
 		}
 	}

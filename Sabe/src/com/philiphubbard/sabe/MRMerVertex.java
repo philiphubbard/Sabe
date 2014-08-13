@@ -22,29 +22,24 @@
 
 package com.philiphubbard.sabe;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.BytesWritable;
 
 import com.philiphubbard.digraph.MRVertex;
 
 public class MRMerVertex extends MRVertex {
 	
-	public static void setMerLength(int length) {
-		merLength = length;
-	}
-	
-	public static int getMerLength() {
-		return merLength;
-	}
-	
 	//
 	
-	public MRMerVertex(int id) {
-		super(id);
-		merString = null; // HEY!! new MerString(id, merLength);
+	public static final String CONFIG_MER_LENGTH = "CONFIG_MER_LENGTH";
+	
+	public MRMerVertex(int id, Configuration config) {
+		super(id, config);
+		merString = new MerString(id, config.getInt(CONFIG_MER_LENGTH, 1));
 	}
 	
-	public MRMerVertex(BytesWritable writable) {
-		super(writable);
+	public MRMerVertex(BytesWritable writable, Configuration config) {
+		super(writable, config);
 	}
 	
 	public MerString getMerString() {
@@ -57,14 +52,15 @@ public class MRMerVertex extends MRVertex {
 		return (merString.equals(other.merString));
 	}
 	
-	public String toDisplayString() {
+	public String toDisplayString(Configuration config) {
 		StringBuilder s = new StringBuilder();
 		
 		s.append("MRMerVertex ");
 		s.append(getId());
 		
 		s.append(" (");
-		s.append(Mer.fromInt(getId(), getMerLength()));
+		int merLength = config.getInt(CONFIG_MER_LENGTH, 1);
+		s.append(Mer.fromInt(getId(), merLength));
 		s.append(") ");
 		
 		MRVertex.AdjacencyIterator toIt = createToAdjacencyIterator();
@@ -95,9 +91,11 @@ public class MRMerVertex extends MRVertex {
 
 	//
 	
-	protected void compressChainInternal(MRVertex other) {
+	protected void compressChainInternal(MRVertex other, Configuration config) {
 		if (other instanceof MRMerVertex) {
 			MRMerVertex otherMer = (MRMerVertex) other;
+
+			int merLength = config.getInt(CONFIG_MER_LENGTH, 1);
 
 			if (merString == null)
 				merString = new MerString(getId(), merLength);
@@ -128,7 +126,6 @@ public class MRMerVertex extends MRVertex {
 	
 	//
 	
-	private static int merLength;
 	private MerString merString;
 
 }

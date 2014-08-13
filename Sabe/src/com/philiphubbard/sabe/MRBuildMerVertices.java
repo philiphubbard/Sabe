@@ -24,9 +24,12 @@ package com.philiphubbard.sabe;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
+
 import com.philiphubbard.digraph.MRBuildVertices;
 import com.philiphubbard.digraph.MRVertex;
 
@@ -38,13 +41,7 @@ import com.philiphubbard.digraph.MRVertex;
 
 public class MRBuildMerVertices extends MRBuildVertices {
 	
-	public static void setVertexMerLength(int length) {
-		MRMerVertex.setMerLength(length);
-	}
-	
-	public static int getVertexMerLength() {
-		return MRMerVertex.getMerLength();
-	}
+	public static final String CONFIG_VERTEX_MER_LENGTH = "CONFIG_VERTEX_MER_LENGTH";
 	
 	public static void setupJob(Job job, Path inputPath, Path outputPath) 
 			throws IOException {
@@ -58,17 +55,17 @@ public class MRBuildMerVertices extends MRBuildVertices {
 	
 	public static class Mapper extends MRBuildVertices.Mapper {
 		
-		protected ArrayList<MRVertex> verticesFromInputValue(Text value) {
+		protected ArrayList<MRVertex> verticesFromInputValue(Text value, Configuration config) {
 			ArrayList<MRVertex> result = new ArrayList<MRVertex>();
 			
-			int vertexMerLength = MRMerVertex.getMerLength();
+			int vertexMerLength = config.getInt(MRMerVertex.CONFIG_MER_LENGTH, 1);
 			
 			String s = value.toString();
 			MRMerVertex prev = null;
 			for (int i = 0; i < s.length() - vertexMerLength + 1; i++) {
 				String mer = s.substring(i, i + vertexMerLength);
 				int id = Mer.toInt(mer);
-				MRMerVertex curr = new MRMerVertex(id);
+				MRMerVertex curr = new MRMerVertex(id, config);
 				result.add(curr);
 				if (prev != null)
 					prev.addEdgeTo(id);
