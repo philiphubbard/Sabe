@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -116,9 +117,11 @@ public class MRAssembler {
 		Graph graph = buildCompressedGraph(conf, fileSystem, branchPath, chainPath);
 		ArrayList<String> result = graph.assemble();
 		
-		// HEY!!
-		String seq = result.get(0);
-		System.out.println(seq);
+		FSDataOutputStream out = fileSystem.create(outputPath);
+		for (String seq : result) {
+			out.writeBytes(seq);
+			out.writeBytes("\n");
+		}
 		
 		//
 		

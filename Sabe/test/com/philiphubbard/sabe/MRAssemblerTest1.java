@@ -22,10 +22,13 @@
 
 package com.philiphubbard.sabe;
 
+import java.io.BufferedReader;
 import java.io.IOException; 
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -41,6 +44,7 @@ public class MRAssemblerTest1 {
 		MRAssembler assembler = new MRAssembler(MER_LENGTH, COVERAGE);
 		assembler.run(new Path(testInput), new Path(testOutput));
 		
+		verifyTest(conf);
 		cleanupTest(conf);
 		
 		System.exit(0);
@@ -77,14 +81,29 @@ public class MRAssemblerTest1 {
 		fileSystem.close();
 	}
 	
-	private static void cleanupTest(Configuration conf) throws IOException {
-		System.out.println("AATTCGGCCTTCGGCAT");
+	private static void verifyTest(Configuration conf) throws Exception {
+		FileSystem fileSystem = FileSystem.get(conf);
+		FSDataInputStream output = fileSystem.open(new Path(testOutput));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(output));
+
+		String actual = reader.readLine();
+		final String expected = "AATTCGGCCTTCGGCAT";
 		
+		System.out.println(expected);
+		
+		if (!actual.equals(expected))
+			throw new Exception("Test failed with incorrect result: " + actual);
+		
+		reader.close();
+		
+		System.out.println("Test succeeded.");
+	}
+
+	private static void cleanupTest(Configuration conf) throws IOException {
 		FileSystem fileSystem = FileSystem.get(conf);
 		
 		fileSystem.delete(new Path(testInput), true);
-		// HEY!!
-		//fileSystem.delete(new Path(testOutput), true);
+		fileSystem.delete(new Path(testOutput), true);
 		
 		fileSystem.close();
 	}
