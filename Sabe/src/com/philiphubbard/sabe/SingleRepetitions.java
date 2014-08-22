@@ -22,9 +22,10 @@
 
 package com.philiphubbard.sabe;
 
-import java.util.ArrayList;
-import java.util.ArrayDeque;
 import java.lang.Math;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+
 
 import com.philiphubbard.digraph.BasicDigraph;
 import com.philiphubbard.digraph.StrongComponents;
@@ -50,14 +51,14 @@ public class SingleRepetitions {
 			if (!state.done()) {
 				int vertex = edges.get(0).getTo();
 				
-				// HEY!!
+				// HEY!! Debugging output
 				System.out.println("Visiting vertex " + vertex);
 				
 				stack.push(new State(graph, vertex, edges.size()));
 				
 				if (isBranch[vertex]) {
 					
-					// HEY!!
+					// HEY!! Debugging output
 					System.out.println("Vertex " + vertex + " is branch");
 
 					if (isFeasibleRepetition(stack, isBranch, strongComps, coverage)) {
@@ -97,7 +98,7 @@ public class SingleRepetitions {
 		int vertex = stack.peek().vertex;
 		for (State state : stack) {
 			
-			// HEY!!
+			// HEY!! Debugging output
 			System.out.println("multiplicity " + state.multiplicity + " min " + minMultiplicity + " coverage " + coverage);
 			
 			if (state.isEnd) {
@@ -115,7 +116,7 @@ public class SingleRepetitions {
 	private static void forceMultiplicity(int multiplicity, ArrayDeque<State> stack, 
 			BasicDigraph graph) {
 		
-		// HEY!!
+		// HEY!! Debugging output
 		System.out.println("Forcing multiplicity " + multiplicity);
 		
 		State prev = null;
@@ -134,18 +135,18 @@ public class SingleRepetitions {
 	}
 	
 	private static class State {
-		public State(BasicDigraph graph, int vertex, int multiplicity) {
+		State(BasicDigraph graph, int vertex, int multiplicity) {
 			this.vertex = vertex;
 			this.multiplicity = multiplicity;
 			this.graph = graph;
 			isEnd = false;
 		}
 		
-		public boolean done() {
+		boolean done() {
 			return ((it != null) && it.done());
 		}
 		
-		public ArrayList<BasicDigraph.Edge> next() {
+		ArrayList<BasicDigraph.Edge> next() {
 			if (it == null) {
 				it = graph.createAdjacencyMultipleIterator(vertex);
 				return it.begin();
@@ -155,12 +156,11 @@ public class SingleRepetitions {
 			}
 		}
 		
-		// HEY!! Accessor functions instead of public members? Cannot hide private members?
-		public int vertex;
-		public int multiplicity;
-		public boolean isEnd;
+		int vertex;
+		int multiplicity;
+		boolean isEnd;
 		
-		private BasicDigraph graph;
-		private BasicDigraph.AdjacencyMultipleIterator it;
+		BasicDigraph graph;
+		BasicDigraph.AdjacencyMultipleIterator it;
 	}
 }

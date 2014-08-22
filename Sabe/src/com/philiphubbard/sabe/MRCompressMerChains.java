@@ -46,10 +46,11 @@ public class MRCompressMerChains extends MRCompressChains {
 	public static class Mapper extends MRCompressChains.Mapper {
 
 		protected MRVertex createMRVertex(BytesWritable value, Configuration config) {
+			MRMerVertex vertex = new MRMerVertex(value, config);
 			
-			// HEY!! Debug
-			MRMerVertex vertex = new MRMerVertex(value, config); 
+			// HEY!! Debugging output
 			System.out.println("** createMRVertex(); created " + vertex.toDisplayString() + " **");
+			
 			return vertex;
 		}
 		
@@ -58,10 +59,11 @@ public class MRCompressMerChains extends MRCompressChains {
 	public static class Reducer extends MRCompressChains.Reducer {
 
 		protected MRVertex createMRVertex(BytesWritable value, Configuration config) {
+			MRMerVertex vertex = new MRMerVertex(value, config);
 			
-			// HEY!! Debug
-			MRMerVertex vertex = new MRMerVertex(value, config); 
+			// HEY!! Debugging output
 			System.out.println("** createMRVertex(); created " + vertex.toDisplayString() + " **");
+			
 			return vertex;
 		}
 

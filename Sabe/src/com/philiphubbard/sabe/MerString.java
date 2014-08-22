@@ -66,12 +66,6 @@ public class MerString {
 		putHeader(bytes);
 	}
 	
-	// HEY!!
-	public MerString(String s) {
-		getHeader(s);
-		string = s;
-	}
-	
 	public MerString(byte[] bytes) {
 		this.bytes = bytes;
 		getHeader(this.bytes);
@@ -108,14 +102,6 @@ public class MerString {
 		length = mergedLength;
 		putHeader(result);		
 		bytes = result;
-	}
-	
-	// HEY!!
-	// Outputs the encoded form of the data as a String, which is not
-	// intendend to be read by a human.
-	
-	public String toString() {
-		return string;
 	}
 	
 	public byte[] toBytes() {
@@ -157,36 +143,7 @@ public class MerString {
 	}
 	
 	//
-	
-	private void putHeader(char[] array) {
-		int extra = length % LETTERS_PER_CHAR;
-		array[0] = (char) extra;
-	}
-	
-	private void getHeader(String string) {
-		int extra = (int) string.charAt(0);
-		int lengthInChars = string.length() - HEADER_LENGTH;
-		if (extra == 0)
-			length = lengthInChars * LETTERS_PER_CHAR;
-		else
-			length = (lengthInChars - 1) * LETTERS_PER_CHAR + extra;
-	}
-	
-	private void put(char[] array, int i, int letter) {
-		int iChar = i / LETTERS_PER_CHAR;
-		int r = i % LETTERS_PER_CHAR;
-		letter <<= BITS_PER_LETTER * (LETTERS_PER_CHAR - 1 - r);
-		array[iChar + HEADER_LENGTH] |= letter;
-	}
-	
-	private int get(String string, int i) {
-		int iChar = i / LETTERS_PER_CHAR;
-		int r = i % LETTERS_PER_CHAR;
-		int letter = (int) string.charAt(HEADER_LENGTH + iChar);
-		letter >>>= BITS_PER_LETTER * (LETTERS_PER_CHAR - 1 - r);
-		return (int) (letter & LETTER_BIT_MASK);
-	}
-	
+		
 	private void putHeader(byte[] array) {
 		int extra = length % LETTERS_PER_BYTE;
 		array[0] = (byte) extra;
@@ -218,9 +175,6 @@ public class MerString {
 	
 	private static final int BITS_PER_LETTER = 2;
 	private static final int LETTER_BIT_MASK = 0x3;
-	
-	// HEY!!
-	private static final int LETTERS_PER_CHAR = 8;
 
 	private static final int LETTERS_PER_BYTE = 4;
 	private static final int A = 0x0;
@@ -231,7 +185,4 @@ public class MerString {
 	
 	private int length;
 	private byte[] bytes;
-	
-	// HEY!!
-	private String string;
 }

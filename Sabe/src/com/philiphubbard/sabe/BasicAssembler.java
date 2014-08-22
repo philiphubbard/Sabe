@@ -22,12 +22,12 @@
 
 package com.philiphubbard.sabe;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+
 import com.philiphubbard.digraph.BasicDigraph;
 import com.philiphubbard.digraph.Digraph;
 import com.philiphubbard.digraph.EulerPaths;
-
-import java.util.ArrayList;
-import java.util.ArrayDeque;
 
 // A class to assemble sequences from a list of "reads".
 // The algorithm breaks each read string into substrings of length
@@ -73,8 +73,7 @@ public class BasicAssembler {
 				if (seq.length() == 0)
 					seq = Mer.fromInt(v, vertexMerLength);
 				else
-					// HEY!! Don't use += on String?
-					seq += Mer.fromInt(v, 1);
+					seq = seq.concat(Mer.fromInt(v, 1));
 			}
 			
 			result.add(seq);

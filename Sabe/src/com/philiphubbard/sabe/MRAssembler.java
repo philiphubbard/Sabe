@@ -22,7 +22,6 @@
 
 package com.philiphubbard.sabe;
 
-// HEY!! This order of imports is what Eclipse generated.  So switch to it everywhere?
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -69,14 +68,6 @@ public class MRAssembler {
 		
 		Path buildInputPath = inputPath;
 		Path buildOutputPath = new Path("MRAssemblerTmp");
-		
-		/* HEY!!
-		System.out.print("inputPath \"" + inputPath.toString() + "\"\n");
-		System.out.print("outputPath \"" + outputPath.toString() + "\"\n");
-		System.out.print("outputDir \"" + outputDir.toString() + "\"\n");
-		System.out.print("buildOutputPath \"" + buildOutputPath.toString() + "\"\n");
-		return true;
-		*/
 
 		MRBuildMerVertices.setupJob(buildJob, buildInputPath, buildOutputPath);	
 		
@@ -85,9 +76,6 @@ public class MRAssembler {
 		
 		//
 		
-		// HEY!! Need MRCompressMerChains which extends MRCompressChains and overrides
-		// createMRVertex(Text value) to return MRMerVertex.
-
 		Path compressInputPath = new Path(buildOutputPath.toString() + "/chain");
 		Path compressOutputPath = new Path(buildOutputPath.toString() + "/chainCompress");
 		
@@ -145,7 +133,7 @@ public class MRAssembler {
 		for (FileStatus status : chainFiles)
 			readVertices(status, vertices, conf);
 		
-		/// HEY!!
+		/// HEY!! Debugging output
 		for (MRVertex vertex : vertices) 
 			System.out.println(vertex.toDisplayString());
 		
@@ -181,23 +169,25 @@ public class MRAssembler {
 			int i = 1;
 			for (MRMerVertex vertex : vertices) {
 				if (vertex.getIsSource()) {
-					// HEY!!
+					
+					// HEY!! Debugging output
 					if (source == null)
 						System.out.println("** " + i + " is source **");
 					
 					if (source == null)
 						source = vertex;
-					// HEY!! Else what?
+					// TODO: else handle multiple sources/sinks somehow.
 				}
 				
 				if (vertex.getIsSink()) {
-					// HEY!!
+					
+					// HEY!! Debugging output
 					if (sink == null)
 						System.out.println("** " + i + " is sink **");
 					
 					if (sink == null)
 						sink = vertex;
-					// HEY!! Else what?
+					// TODO: else handle multiple sources/sinks somehow.
 				}
 
 				int j = (vertex == source) ? 0 : i++;
@@ -206,7 +196,7 @@ public class MRAssembler {
 				merToIndex.put(mers[j], j);
 				isBranch[j] = vertex.getIsBranch();
 				
-				// HEY!!
+				// HEY!! Debugging output
 				if (merStrings[j] != null)
 					System.out.println("* " + j + ": mers " + mers[j] 
 							+ " merStrings " + merStrings[j].toDisplayString() + " *");
@@ -226,11 +216,11 @@ public class MRAssembler {
 					BasicDigraph.Edge edge = new BasicDigraph.Edge(merToIndex.get(to).intValue());
 					graph.addEdge(j, edge);
 					
-					// HEY!!
+					// HEY!! Debugging output
 					System.out.print(edge.getTo() + " ");
 				}
 				
-				// HEY!!
+				// HEY!! Debugging output
 				System.out.print("\n");
 			}
 			
@@ -244,7 +234,7 @@ public class MRAssembler {
 				addedSinkSourceEdge = true;
 			}
 			
-			// HEY!!
+			// HEY!! Debugging output
 			for (int v = 0; v < graph.getVertexCapacity(); v++) {
 				BasicDigraph.AdjacencyIterator it = graph.createAdjacencyIterator(v);
 				System.out.print(v + ": ");
@@ -264,7 +254,7 @@ public class MRAssembler {
 				if (addedSinkSourceEdge)
 					path.pollLast();
 				
-				// HEY!!
+				// HEY!! Debugging output
 				for (int v : path)
 					System.out.print(v + " ");
 				System.out.print("\n");

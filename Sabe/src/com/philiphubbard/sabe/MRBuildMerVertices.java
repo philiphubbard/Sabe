@@ -70,7 +70,7 @@ public class MRBuildMerVertices extends MRBuildVertices {
 				if (prev != null)
 					prev.addEdgeTo(id);
 				
-				// HEY!!
+				// HEY!! Debugging output
 				if (prev != null)
 					System.out.println("** MRMerVertex " + prev.getId() + " \"" + Mer.fromInt(prev.getId(), vertexMerLength) + "\" to "
 							+ id + " \"" + Mer.fromInt(id,  vertexMerLength) +"\" **");

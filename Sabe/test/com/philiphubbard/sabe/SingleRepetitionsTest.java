@@ -22,8 +22,8 @@
 
 package com.philiphubbard.sabe;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.philiphubbard.digraph.BasicDigraph;

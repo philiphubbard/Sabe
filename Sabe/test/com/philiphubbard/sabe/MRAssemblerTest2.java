@@ -28,15 +28,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 
 public class MRAssemblerTest2 {
 	
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) 
+			throws IOException, ClassNotFoundException, InterruptedException {
 		Configuration conf = new Configuration();
 		
 		setupTest(conf);
@@ -59,6 +60,7 @@ public class MRAssemblerTest2 {
 		
 		ArrayList<Text> reads = new ArrayList<Text>();
 		
+		// HEY!! Identify the repeats in the comment
 		// CATGGATCTTGGAAATTCTTGCCCGGATTTAAGGGTGCCCGGATTTGGCGGGTTCTTGGAAAACCGT
 		
 		// Error: omission of T at end of read.
@@ -92,7 +94,7 @@ public class MRAssemblerTest2 {
 		fileSystem.close();
 	}
 
-	private static void verifyTest(Configuration conf) throws Exception {
+	private static void verifyTest(Configuration conf) throws IOException {
 		FileSystem fileSystem = FileSystem.get(conf);
 		FSDataInputStream output = fileSystem.open(new Path(testOutput));
 		BufferedReader reader = new BufferedReader(new InputStreamReader(output));
@@ -103,7 +105,7 @@ public class MRAssemblerTest2 {
 		System.out.println(expected);
 		
 		if (!actual.equals(expected))
-			throw new Exception("Test failed with incorrect result: " + actual);
+			throw new IOException("Test failed with incorrect result: " + actual);
 		
 		reader.close();
 		

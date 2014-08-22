@@ -103,13 +103,13 @@ public class MRMerVertex extends MRVertex {
 			if (otherMerString == null)
 				otherMerString = new MerString(other.getId(), merLength);
 				
-			// HEY!! 
+			// HEY!! Debugging output
 			System.out.println("*** " + merString.toDisplayString() + " + " + otherMerString.toDisplayString() + 
 					" [" + (merLength - 1) + "] ***");
 			
 			merString.merge(otherMerString, merLength - 1);
 			
-			// HEY!! 
+			// HEY!! Debugging output
 			System.out.println("**** " + merString.toDisplayString() + " ****");
 		}
 	}
