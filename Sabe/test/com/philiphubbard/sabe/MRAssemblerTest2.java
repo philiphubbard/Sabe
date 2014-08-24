@@ -87,7 +87,9 @@ public class MRAssemblerTest2 {
 		reads.add(new Text("CGGGTTCTTGGAAAACCGT\n"));
 		*/
 		
-		// The expected result has the following pattern:
+		// The expected result:
+		// CCCTTTCTGTTGACCCATCATTGTTTAGTAACCCGCGGGATGCCTGGCAGACCCGCGGGACGATCTCCTCTGACCCATCATCGAAATTCC
+		// Note that it has the following pattern:
 		// segment 0: CCCTTTCTGT 
 		// segment 1, which will be repeated: TGACCCATCA 
 		// segment 2: TTGTTTAGTA 
@@ -98,7 +100,6 @@ public class MRAssemblerTest2 {
 		// segment 1, again: TGACCCATCA 
 		// segment 6: TCGAAATTCC
 
-		// CCCTTTCTGTTGACCCATCATTGTTTAGTAACCCGCGGGATGCCTGGCAGACCCGCGGGACGATCTCCTCTGACCCATCATCGAAATTCC
 		
 		/* HEY!! Works with coverage 3
 		reads.add(new Text("CCCTTTC\n"));
