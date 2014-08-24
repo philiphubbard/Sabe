@@ -51,7 +51,6 @@ public class MRAssembler {
 		this.coverage = coverage;
 	}
 	
-	// HEY!! More specific about exceptions thrown?  Make that change elsewhere?
 	public boolean run(Path inputPath, Path outputPath) 
 			throws IOException, InterruptedException, ClassNotFoundException {
 		Configuration conf = new Configuration();
@@ -59,6 +58,7 @@ public class MRAssembler {
 		// Job.getInstance() copies the Configuration argument, so set its properties first.
 		
 		conf.setBoolean(MRVertex.CONFIG_ALLOW_EDGE_MULTIPLES, true);
+		conf.setBoolean(MRVertex.CONFIG_COMPRESS_CHAIN_MULTIPLES_MUST_MATCH, false);
 		conf.setInt(MRMerVertex.CONFIG_MER_LENGTH, vertexMerLength);
 		conf.setBoolean(MRBuildVertices.CONFIG_PARTITION_BRANCHES_CHAINS, true);
 		conf.setInt(MRBuildVertices.CONFIG_COVERAGE, coverage);
@@ -198,11 +198,11 @@ public class MRAssembler {
 				
 				// HEY!! Debugging output
 				if (merStrings[j] != null)
-					System.out.println("* " + j + ": mers " + mers[j] 
-							+ " merStrings " + merStrings[j].toDisplayString() + " *");
+					System.out.println("* " + j + ": mer " + mers[j] 
+							+ " " + merStrings[j].toDisplayString() + " *");
 				else
-					System.out.println("* " + j + ": mers " + mers[j] 
-							+ " no merStrings *");
+					System.out.println("* " + j + ": mer " + mers[j] 
+							+ " " + Mer.fromInt(mers[j], vertexMerLength) + " *");
 			}
 			
 			graph = new BasicDigraph(vertices.size(), Digraph.EdgeMultiples.ENABLED);
