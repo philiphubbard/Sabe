@@ -45,13 +45,13 @@ import com.philiphubbard.digraph.MRCompressChains;
 import com.philiphubbard.digraph.MRVertex;
 
 // A class to assemble genomic sequences from a list of "reads" using
-// map-reduce (MR) algorithms implemented in Hadoop to improve performance.
+// MapReduce (MR) algorithms implemented in Hadoop to improve performance.
 //
-// The algorithm uses one map-reduce pass to break each read string into
+// The algorithm uses one MapReduce pass to break each read string into
 // substrings of length k-1.  These (k-1)-mers are the vertices of a
 // De Bruijn graph, and the edges correspond to the k-mers that are the
 // overlap of the adjacent substrings of length k-1.  The graph is then
-// reduced in size using a sequence of map-reduce passes that compress 
+// reduced in size using a sequence of MapReduce passes that compress 
 // linear chains of edges, which are expected to be very long in practice.  
 // The final sequence is assembled from the reduced graph by a sequential
 // algorithm to find the Euler tour, the tour that visits each edge exactly
@@ -79,13 +79,13 @@ public class MRAssembler {
 		this.coverage = coverage;
 	}
 	
-	// Run the map-reduce passes and sequential algorithms that perform the 
+	// Run the MapReduce passes and sequential algorithms that perform the 
 	// sequence assembly.  The inputPath is a directory, all of whose files
 	// contain read strings, one read per line (ending with "\n" character).
 	// The outputPath is a directory in which a file with the final assembled
 	// sequence will be created.  A temporary directory named "sabe.MRAssemblerTmp"
 	// will be created in the current working directory to hold intermediate
-	// results from the map-reduce passes.
+	// results from the MapReduce passes.
 	
 	public boolean run(Path inputPath, Path outputPath) 
 			throws IOException, InterruptedException, ClassNotFoundException {
