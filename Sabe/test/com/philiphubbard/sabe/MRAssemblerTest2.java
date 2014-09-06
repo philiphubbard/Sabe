@@ -34,6 +34,10 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 
+// A sample driver application for running the MRAssembler class with Hadoop.
+// The test data in this case is a larger set of reads, containing errors and
+// single repetitions, with the goal being a longer sequence.
+
 public class MRAssemblerTest2 {
 	
 	public static void main(String[] args) 
@@ -60,33 +64,6 @@ public class MRAssemblerTest2 {
 		
 		ArrayList<Text> reads = new ArrayList<Text>();
 		
-		/* HEY!! Old
-		// HEY!! Identify the repeats in the comment
-		// CATGGATC TTGGAAA TTCT TGCCCGGATTT AAGGG TGCCCGGATTT GGCGGGTTC TTGGAAA ACCGT
-		// CATGGA TCTTGGAAA TTCT TGCCCGGATTT AAGGG TGCCCGGATTT GGCGGGT TCTTGGAAA ACCGT
-		// CATGGATCTTG GAAATTCTTGCCCGGATTTAAGGGTGCCCGGATTTGGCGGGTTCTTGGAAAACCGT
-		
-		// Error: omission of T at end of read.
-		reads.add(new Text("CATGGATC\n"));
-		reads.add(new Text("TGGAAATTCTTGCCCGGATTTAAGGGTGCCCGGATTTGGCGGGTTCTTGGAAAACCGT\n"));
-		
-		// Error: middle should be TTCTt not TTCTc.
-		reads.add(new Text("CATGGATCTTGGAAATTCTCGCCCGGATTTAAGGG\n"));
-		reads.add(new Text("TGCCCGGATTTGGCGGGTTCTTGGAAAACCGT\n"));
-		
-		reads.add(new Text("CATGGATCTTGGAAATTCTTGCCCGGATTTAAGGGTGCCCGGATTTGGCGGGTTC\n"));
-		// Error: should start TTGgaAAA not TTGagAAA
-		reads.add(new Text("TTGAGAAACCGT\n"));
-
-		reads.add(new Text("CATGGATCTTGGAAATTCT\n"));
-		// Error: omission of T at the beginning and end of read
-		reads.add(new Text("GCCCGGATTTAAGGGTGCCCGGATTTGGCGGGTTCTTGGAAAACCG\n"));
-
-		// Error: read should start with CaT not CgT
-		reads.add(new Text("CGTGGATCTTGGAAATTCTTGCCCGGATTTAAGGGTGCCCGGATTTGG\n"));
-		reads.add(new Text("CGGGTTCTTGGAAAACCGT\n"));
-		*/
-		
 		// The expected result:
 		// CCCTTTCTGTTGACCCATCATTGTTTAGTAACCCGCGGGATGCCTGGCAGACCCGCGGGACGATCTCCTCTGACCCATCATCGAAATTCC
 		// Note that it has the following pattern:
@@ -99,56 +76,6 @@ public class MRAssemblerTest2 {
 		// segment 5: CGATCTCCTC
 		// segment 1, again: TGACCCATCA 
 		// segment 6: TCGAAATTCC
-
-		
-		/* HEY!! Works with coverage 3
-		reads.add(new Text("CCCTTTC\n"));
-		reads.add(new Text("TGTTGACCCATCATTGTTTAGTAACCCGCGGGATGCCTGGCAGACCCGCGGGACGATCTCCTCTGACCCATCATCGAAATTCC\n"));
-
-		reads.add(new Text("CCCTTTCTGTTGACCCATCATTGTTTAGTAACCCGCGGGATGCC\n"));
-		reads.add(new Text("TGGCAGACCCGCGGGACGATCTCCTCTGACCCATCATCGAAATTCC\n"));
-
-		reads.add(new Text("CCCTTTCTGTTGACCCATCATTGTTTAGTAACCCGCGGGATGCCTGGCAGACCCGCGGGACGATCTCCTCT\n"));
-		reads.add(new Text("GACCCATCATCGAAATTCC\n"));
-		*/
-
-		/* HEY!! Works with coverage 5
-		reads.add(new Text("CCCTTTC\n"));
-		reads.add(new Text("TGTTGACCCATCATTGTTTAGTAACCCGCGGGATGCCTGGCAGACCCGCGGGACGATCTCCTCTGACCCATCATCGAAATTCC\n"));
-
-		reads.add(new Text("CCCTTTCTGTTGACCCAT\n"));
-		reads.add(new Text("CATTGTTTAGTAACCCGCGGGATGCCTGGCAGACCCGCGGGACGATCTCCTCTGACCCATCATCGAAATTCC\n"));
-
-		reads.add(new Text("CCCTTTCTGTTGACCCATCATTGTTTAGTAACCCGCGGGATGCC\n"));
-		reads.add(new Text("TGGCAGACCCGCGGGACGATCTCCTCTGACCCATCATCGAAATTCC\n"));
-
-		reads.add(new Text("CCCTTTCTGTTGACCCATCATTGTTTAGTAACCCGCGGGATGCCTGGCAGACCCGCGGGACGA\n"));
-		reads.add(new Text("TCTCCTCTGACCCATCATCGAAATTCC\n"));
-
-		reads.add(new Text("CCCTTTCTGTTGACCCATCATTGTTTAGTAACCCGCGGGATGCCTGGCAGACCCGCGGGACGATCTCCTCT\n"));
-		reads.add(new Text("GACCCATCATCGAAATTCC\n"));
-		*/
-
-		/* HEY!! Works with coverage 5
-		reads.add(new Text("CCCTTTC\n"));
-		reads.add(new Text("TGTTGACCCATCATTGTTTAGTAACCCGCGGGATGCCTGGCAGACCCGCGGGACGAT\n"));
-		reads.add(new Text("CTCCTCTGACCCATCATCGAAATTCC\n"));
-
-		reads.add(new Text("CCCTTTCTGTTGACCCAT\n"));
-		reads.add(new Text("CATTGTTTAGTAACCCGCGGGATGCCTGGCAGACC\n"));
-		reads.add(new Text("CGCGGGACGATCTCCTCTGACCCATCATCGAAATTCC\n"));
-
-		reads.add(new Text("CCCTTTCTGTTGACCCATCATTGTTTAGTAACCCGCGGGATGCC\n"));
-		reads.add(new Text("TGGCAGACCCGCGGGACGATCTCCTCTGACCCATCATCGAAATTCC\n"));
-
-		reads.add(new Text("CCCTTTCTGTTGACCCATCATTGTTTAGTAACCCGCGGGATGCCTG\n"));
-		reads.add(new Text("GCAGACCCGCGGGACGA\n"));
-		reads.add(new Text("TCTCCTCTGACCCATCATCGAAATTCC\n"));
-
-		reads.add(new Text("CCCTTTCTGTTGACCCATCATTGTTTAGTAACCCGCGGGATGCCTGGCAGACCCGCG\n"));
-		reads.add(new Text("GGACGATCTCCTCT\n"));
-		reads.add(new Text("GACCCATCATCGAAATTCC\n"));
-		*/
 
 		reads.add(new Text("CCCTTTC\n"));
 		// Error: initial T omitted.
@@ -197,9 +124,6 @@ public class MRAssemblerTest2 {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(output));
 
 		String actual = reader.readLine();
-		/* HEY!! Old
-		final String expected = "CATGGATCTTGGAAATTCTTGCCCGGATTTAAGGGTGCCCGGATTTGGCGGGTTCTTGGAAAACCGT";
-		*/
 		final String expected = 
 				"CCCTTTCTGTTGACCCATCATTGTTTAGTAACCCGCGGGATGCCTGGCAGACCCGCGGGACGATCTCCTCTGACCCATCATCGAAATTCC";
 		
@@ -222,10 +146,6 @@ public class MRAssemblerTest2 {
 		fileSystem.close();
 	}
 	
-	/* HEY!! Old
-	private static final int MER_LENGTH = 6;
-	private static final int COVERAGE = 5;
-	*/
 	private static final int MER_LENGTH = 6;
 	private static final int COVERAGE = 5;
 

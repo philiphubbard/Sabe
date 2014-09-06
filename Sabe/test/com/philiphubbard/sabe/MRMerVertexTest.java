@@ -61,7 +61,7 @@ public class MRMerVertexTest {
 		mv3.addEdgeTo(m4);
 		mv4.addEdgeTo(m5);
 		
-		mv1.compressChain(mv2, config);
+		mv1.compressChain(mv2);
 		
 		String s1_2 = "ACGTAC";
 		int m1_2 = Mer.toInt(s1_2);
@@ -76,7 +76,7 @@ public class MRMerVertexTest {
 			assert (mv1a.equals(mv1));
 			assert (mv1a.getMerString().equals(ms1_2));
 			
-			mv3.compressChain(mv4, config);
+			mv3.compressChain(mv4);
 			
 			String s3_4 = "GTACGT";
 			int m3_4 = Mer.toInt(s3_4);
@@ -90,7 +90,7 @@ public class MRMerVertexTest {
 			assert (mv3a.equals(mv3));
 			assert (mv3a.getMerString().equals(ms3_4));
 			
-			mv1.compressChain(mv3, config);
+			mv1.compressChain(mv3);
 			
 			String s1_4 = "ACGTACGT";
 			int m1_4 = Mer.toInt(s1_4);
@@ -114,15 +114,14 @@ public class MRMerVertexTest {
 			BytesWritable t10a = mv10.toWritable(MRVertex.EdgeFormat.EDGES_TO);
 			MRMerVertex mv10a = new MRMerVertex(t10a, config);
 			
-			System.out.println("mv10a " + mv10a.toDisplayString());
-	
-			
+			assert (mv10.equals(mv10a));
+
 			int m11 = Mer.toInt("CGA");
 			MRMerVertex mv11 = new MRMerVertex(m11, config);
 	
 			mv10.addEdgeTo(m11);
 			mv11.addEdgeTo(Mer.toInt("GAG"));
-			mv10.compressChain(mv11, config);
+			mv10.compressChain(mv11);
 			
 			BytesWritable t10b = mv10.toWritable(MRVertex.EdgeFormat.EDGES_TO);
 			MRMerVertex mv10b = new MRMerVertex(t10b, config);

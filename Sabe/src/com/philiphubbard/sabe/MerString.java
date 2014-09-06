@@ -36,6 +36,9 @@ package com.philiphubbard.sabe;
 
 public class MerString {
 
+	// Construct a MerString from the int encoding of a k-mer, as defined by
+	// the Mer class.  The length argument is the k.
+	
 	public MerString(int mer, int length) {
 		int byteLength = length / LETTERS_PER_BYTE;
 		if (length % LETTERS_PER_BYTE > 0)
@@ -66,10 +69,17 @@ public class MerString {
 		putHeader(bytes);
 	}
 	
+	// Construct a MerString from a byte array, assumed to have come from a
+	// call to MerString.toBytes().
+	
 	public MerString(byte[] bytes) {
 		this.bytes = bytes;
 		getHeader(this.bytes);
 	}
+	
+	// Construct a MerString from a subarray of a byte array, starting at index i
+	// and having length n.  The subarray is assumed to have the format produced
+	// by MerString.toBytes().
 	
 	public MerString(byte[] bytes, int i, int n) {
 		this.bytes = new byte[n];
@@ -78,8 +88,8 @@ public class MerString {
 		getHeader(this.bytes);
 	}
 	
-	// Merges "other" into this MerString.  Does not verify that the letters
-	// in the overlap region are actually the same.
+	// Merges the other MerString into this MerString.  Does not verify that the 
+	// letters in the overlap region are actually the same.
 	
 	public void merge(MerString other, int overlap) {
 		int mergedLength = length + other.length - overlap;
@@ -103,6 +113,9 @@ public class MerString {
 		putHeader(result);		
 		bytes = result;
 	}
+	
+	// Returns the byte array that contains the encoded representation of
+	// this MerString.
 	
 	public byte[] toBytes() {
 		return bytes;
@@ -133,6 +146,8 @@ public class MerString {
 		return new String(array);
 	}
 	
+	// Returns true if the values (not the references) of two MerStrings are equivalent.
+	
 	public boolean equals(MerString other) {
 		if (bytes.length != other.bytes.length)
 			return false;
@@ -143,11 +158,15 @@ public class MerString {
 	}
 	
 	//
-		
+	
+	// Put into the byte array the header for the encoding of this MerString.
+	
 	private void putHeader(byte[] array) {
 		int extra = length % LETTERS_PER_BYTE;
 		array[0] = (byte) extra;
 	}
+	
+	// Get from the byte array the information encoded in the header.
 	
 	private void getHeader(byte[] array) {
 		int extra = (int) array[0];
@@ -158,12 +177,16 @@ public class MerString {
 			length = (lengthInBytes - 1) * LETTERS_PER_BYTE + extra;
 	}
 	
+	// Put into the byte array at index i the letter described as an int.
+	
 	private static void put(byte[] array, int i, int letter) {
 		int iByte = i / LETTERS_PER_BYTE;
 		int r = i % LETTERS_PER_BYTE;
 		letter <<= BITS_PER_LETTER * (LETTERS_PER_BYTE - 1 - r);
 		array[iByte + HEADER_LENGTH] |= letter;
 	}
+	
+	// Get as an int the letter stored at index i in the byte array.
 	
 	private static int get(byte[] array, int i) {
 		int iByte = i / LETTERS_PER_BYTE;

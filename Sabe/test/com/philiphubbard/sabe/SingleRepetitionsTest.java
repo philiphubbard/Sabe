@@ -52,13 +52,24 @@ public class SingleRepetitionsTest {
 		int coverage = 1;
 		
 		graph.addEdge(0, new BasicDigraph.Edge(1));
+		
+		// 1->2 is a repetition.  The loop-back path to start the second instance is
+		// 2->3->4->3->4->1; note that the loop-back path has a repetition, too.
+		
 		graph.addEdge(1, new BasicDigraph.Edge(2));
 		graph.addEdge(1, new BasicDigraph.Edge(2));
+		
 		graph.addEdge(2, new BasicDigraph.Edge(3));
+		
+		// 3->4 is a repetition.  The loop-back path is 4->3.
+		
 		graph.addEdge(3, new BasicDigraph.Edge(4));
 		graph.addEdge(3, new BasicDigraph.Edge(4));
+		
 		graph.addEdge(4, new BasicDigraph.Edge(3));
+		
 		graph.addEdge(4, new BasicDigraph.Edge(1));
+		
 		graph.addEdge(2, new BasicDigraph.Edge(5));
 		
 		boolean[] isBranch = new boolean[6];
@@ -86,35 +97,51 @@ public class SingleRepetitionsTest {
 
 		BasicDigraph graph = new BasicDigraph(6, Digraph.EdgeMultiples.ENABLED);
 		
+		// The same graph as in test1, but with increased coverage, and some errors.
+		
 		int coverage = 3;
 
 		// One error: one edge missing (so coverage - 1 edges for a segment that is not repeated).
+		
 		graph.addEdge(0, new BasicDigraph.Edge(1));
 		graph.addEdge(0, new BasicDigraph.Edge(1));
-		// No error.
+		
+		// No errors on the repetition 1->2.  Recall that the loop-back path is
+		// 2->3->4->3->4->1 (containing a repetition itself).
+		
 		graph.addEdge(1, new BasicDigraph.Edge(2));
 		graph.addEdge(1, new BasicDigraph.Edge(2));
 		graph.addEdge(1, new BasicDigraph.Edge(2));
 		graph.addEdge(1, new BasicDigraph.Edge(2));
 		graph.addEdge(1, new BasicDigraph.Edge(2));
 		graph.addEdge(1, new BasicDigraph.Edge(2));
-		// No error.
+		
+		// No errors.
+		
 		graph.addEdge(2, new BasicDigraph.Edge(3));
 		graph.addEdge(2, new BasicDigraph.Edge(3));
 		graph.addEdge(2, new BasicDigraph.Edge(3));
-		// Two errors: two edges missing from a repeated segment.
+		
+		// Two errors: two edges missing from the repetition 3->4.
+		
 		graph.addEdge(3, new BasicDigraph.Edge(4));
 		graph.addEdge(3, new BasicDigraph.Edge(4));
 		graph.addEdge(3, new BasicDigraph.Edge(4));
 		graph.addEdge(3, new BasicDigraph.Edge(4));
+		
 		// One error: one edge missing.
+		
 		graph.addEdge(4, new BasicDigraph.Edge(3));
 		graph.addEdge(4, new BasicDigraph.Edge(3));
-		// No error.
+		
+		// No errors.
+		
 		graph.addEdge(4, new BasicDigraph.Edge(1));
 		graph.addEdge(4, new BasicDigraph.Edge(1));
 		graph.addEdge(4, new BasicDigraph.Edge(1));
+		
 		// One error: one edge missing.
+		
 		graph.addEdge(2, new BasicDigraph.Edge(5));
 		graph.addEdge(2, new BasicDigraph.Edge(5));
 		
@@ -143,84 +170,125 @@ public class SingleRepetitionsTest {
 		
 		BasicDigraph graph = new BasicDigraph(17, Digraph.EdgeMultiples.ENABLED);
 		
+		// A more complex graph, with coverage of 3.
+		
 		int coverage = 3;
+		
+		// No errors.
 		
 		graph.addEdge(0, new BasicDigraph.Edge(1));
 		graph.addEdge(0, new BasicDigraph.Edge(1));
 		graph.addEdge(0, new BasicDigraph.Edge(1));
+		
 		// One error: one missing edge.
+		
 		graph.addEdge(1, new BasicDigraph.Edge(2));
 		graph.addEdge(1, new BasicDigraph.Edge(2));
-		// One error: one missing edge from a repetition.
+		
+		// One error: one edge missing from the first part of the repetition 2->3->4.  
+		// The loop-back path is 4->5->6->2.
+		
 		graph.addEdge(2, new BasicDigraph.Edge(3));
 		graph.addEdge(2, new BasicDigraph.Edge(3));
 		graph.addEdge(2, new BasicDigraph.Edge(3));
 		graph.addEdge(2, new BasicDigraph.Edge(3));
 		graph.addEdge(2, new BasicDigraph.Edge(3));
-		// No errors.
+		
+		// No errors in the second part of the repetition 2->3->4.
+		
 		graph.addEdge(3, new BasicDigraph.Edge(4));
 		graph.addEdge(3, new BasicDigraph.Edge(4));
 		graph.addEdge(3, new BasicDigraph.Edge(4));
 		graph.addEdge(3, new BasicDigraph.Edge(4));
 		graph.addEdge(3, new BasicDigraph.Edge(4));
 		graph.addEdge(3, new BasicDigraph.Edge(4));
+		
 		// One error: one missing edge.
+		
 		graph.addEdge(4, new BasicDigraph.Edge(5));
 		graph.addEdge(4, new BasicDigraph.Edge(5));
+		
 		// One error: one extra edge.
+		
 		graph.addEdge(5, new BasicDigraph.Edge(6));
 		graph.addEdge(5, new BasicDigraph.Edge(6));
 		graph.addEdge(5, new BasicDigraph.Edge(6));
 		graph.addEdge(5, new BasicDigraph.Edge(6));
+		
 		// No errors.
+		
 		graph.addEdge(6, new BasicDigraph.Edge(2));
 		graph.addEdge(6, new BasicDigraph.Edge(2));
 		graph.addEdge(6, new BasicDigraph.Edge(2));
+		
+		// No errors on the first part of the repetition 4->7->8.  
+		// The loop-back path is 8->9->10->4.
+		
+		graph.addEdge(4, new BasicDigraph.Edge(7));
+		graph.addEdge(4, new BasicDigraph.Edge(7));
+		graph.addEdge(4, new BasicDigraph.Edge(7));
+		graph.addEdge(4, new BasicDigraph.Edge(7));
+		graph.addEdge(4, new BasicDigraph.Edge(7));
+		graph.addEdge(4, new BasicDigraph.Edge(7));
+		
+		// Two errors: two missing edges the second part of the repetition
+		// 4->7->8.
+		
+		graph.addEdge(7, new BasicDigraph.Edge(8));
+		graph.addEdge(7, new BasicDigraph.Edge(8));
+		graph.addEdge(7, new BasicDigraph.Edge(8));
+		graph.addEdge(7, new BasicDigraph.Edge(8));
+		
 		// No errors.
-		graph.addEdge(4, new BasicDigraph.Edge(7));
-		graph.addEdge(4, new BasicDigraph.Edge(7));
-		graph.addEdge(4, new BasicDigraph.Edge(7));
-		graph.addEdge(4, new BasicDigraph.Edge(7));
-		graph.addEdge(4, new BasicDigraph.Edge(7));
-		graph.addEdge(4, new BasicDigraph.Edge(7));
-		// Two errors: two missing edges from a repetition.
-		graph.addEdge(7, new BasicDigraph.Edge(8));
-		graph.addEdge(7, new BasicDigraph.Edge(8));
-		graph.addEdge(7, new BasicDigraph.Edge(8));
-		graph.addEdge(7, new BasicDigraph.Edge(8));
-		// No errors.
+		
 		graph.addEdge(8, new BasicDigraph.Edge(9));
 		graph.addEdge(8, new BasicDigraph.Edge(9));
 		graph.addEdge(8, new BasicDigraph.Edge(9));
+		
 		// No errors.
+		
 		graph.addEdge(9, new BasicDigraph.Edge(10));
 		graph.addEdge(9, new BasicDigraph.Edge(10));
 		graph.addEdge(9, new BasicDigraph.Edge(10));
+		
 		// One error: one missing edge.
+		
 		graph.addEdge(10, new BasicDigraph.Edge(4));
 		graph.addEdge(10, new BasicDigraph.Edge(4));
+		
 		// No errors.
+		
 		graph.addEdge(8, new BasicDigraph.Edge(11));
 		graph.addEdge(8, new BasicDigraph.Edge(11));
 		graph.addEdge(8, new BasicDigraph.Edge(11));
-		// One error: one missing edge.
+		
+		// One error: one missing edge.  Note that 12 is the sink.
+		
 		graph.addEdge(11, new BasicDigraph.Edge(12));
 		graph.addEdge(11, new BasicDigraph.Edge(12));
+		
+		// No errors on the first part of the repetition
+		// 8->13->14->15->16.  Note that this repetition is its own
+		// loop-back path to 8.
+		
+		graph.addEdge(8, new BasicDigraph.Edge(13));
+		graph.addEdge(8, new BasicDigraph.Edge(13));
+		graph.addEdge(8, new BasicDigraph.Edge(13));
+		graph.addEdge(8, new BasicDigraph.Edge(13));
+		graph.addEdge(8, new BasicDigraph.Edge(13));
+		graph.addEdge(8, new BasicDigraph.Edge(13));
+		
 		// No errors.
-		graph.addEdge(8, new BasicDigraph.Edge(13));
-		graph.addEdge(8, new BasicDigraph.Edge(13));
-		graph.addEdge(8, new BasicDigraph.Edge(13));
-		graph.addEdge(8, new BasicDigraph.Edge(13));
-		graph.addEdge(8, new BasicDigraph.Edge(13));
-		graph.addEdge(8, new BasicDigraph.Edge(13));
-		// No errors.
+		
 		graph.addEdge(13, new BasicDigraph.Edge(14));
 		graph.addEdge(13, new BasicDigraph.Edge(14));
 		graph.addEdge(13, new BasicDigraph.Edge(14));
 		graph.addEdge(13, new BasicDigraph.Edge(14));
 		graph.addEdge(13, new BasicDigraph.Edge(14));
 		graph.addEdge(13, new BasicDigraph.Edge(14));
-		// One error: one extra edge for a repetition.
+		
+		// One error: one extra edge for this repetition.
+		
 		graph.addEdge(14, new BasicDigraph.Edge(15));
 		graph.addEdge(14, new BasicDigraph.Edge(15));
 		graph.addEdge(14, new BasicDigraph.Edge(15));
@@ -228,13 +296,17 @@ public class SingleRepetitionsTest {
 		graph.addEdge(14, new BasicDigraph.Edge(15));
 		graph.addEdge(14, new BasicDigraph.Edge(15));
 		graph.addEdge(14, new BasicDigraph.Edge(15));
-		// One error: one missing edge from a repetition.
+		
+		// One error: one edge missing from this repetition.
+		
 		graph.addEdge(15, new BasicDigraph.Edge(16));
 		graph.addEdge(15, new BasicDigraph.Edge(16));
 		graph.addEdge(15, new BasicDigraph.Edge(16));
 		graph.addEdge(15, new BasicDigraph.Edge(16));
 		graph.addEdge(15, new BasicDigraph.Edge(16));
-		// Two errors: two missing edges from a repetition.
+		
+		// Two errors: two edges missing from this repetition.
+		
 		graph.addEdge(16, new BasicDigraph.Edge(8));
 		graph.addEdge(16, new BasicDigraph.Edge(8));
 		graph.addEdge(16, new BasicDigraph.Edge(8));
@@ -280,6 +352,9 @@ public class SingleRepetitionsTest {
 
 		System.out.println("SingleRepetitions test 3 passed.");
 	}
+	
+	// Returns true if the specified vertex in the specified graph has edges to the expected
+	// list of vertex IDs, which should be sorted in ascending order.
 	
 	private static boolean edgesEqual(BasicDigraph graph, int vertex, List<Integer> expected) {
 		ArrayList<Integer> actual = new ArrayList<Integer>();

@@ -44,12 +44,48 @@ import com.philiphubbard.digraph.MRBuildVertices;
 import com.philiphubbard.digraph.MRCompressChains;
 import com.philiphubbard.digraph.MRVertex;
 
+// A class to assemble genomic sequences from a list of "reads" using
+// map-reduce (MR) algorithms implemented in Hadoop to improve performance.
+//
+// The algorithm uses one map-reduce pass to break each read string into
+// substrings of length k-1.  These (k-1)-mers are the vertices of a
+// De Bruijn graph, and the edges correspond to the k-mers that are the
+// overlap of the adjacent substrings of length k-1.  The graph is then
+// reduced in size using a sequence of map-reduce passes that compress 
+// linear chains of edges, which are expected to be very long in practice.  
+// The final sequence is assembled from the reduced graph by a sequential
+// algorithm to find the Euler tour, the tour that visits each edge exactly
+// once.  (Hence the name of the package, "Sequence Assembly By Euler tours.")
+//
+// The implementation includes basic techniques to handle errors in the
+// initial reads and repeated substrings in the sequence.  Both techniques
+// depend on the initial reads containing duplicate coverage for the entire
+// sequence.  Duplicate coverage causes the graph to contain edge multiples.
+// Error handling involves discarding vertices with fewer edges than would be
+// expected given the coverage.  Repetition handling involves making two extra
+// sequential passes over the reduced graph to identify chains whose edge
+// multiples indicate they must be repetitions given the coverage.
+
 public class MRAssembler {
+	
+	// Construct the assembler.  The vertexMerLength is the k-1 in the 
+	// (k-1)-mers that define the graph vertices.  The coverage is the number
+	// of times each part of the final sequence will be covered by the union
+	// of all the reads; coverage is assumed to be constant and uniform over
+	// the sequence.
 
 	public MRAssembler(int vertexMerLength, int coverage) {
 		this.vertexMerLength = vertexMerLength;
 		this.coverage = coverage;
 	}
+	
+	// Run the map-reduce passes and sequential algorithms that perform the 
+	// sequence assembly.  The inputPath is a directory, all of whose files
+	// contain read strings, one read per line (ending with "\n" character).
+	// The outputPath is a directory in which a file with the final assembled
+	// sequence will be created.  A temporary directory named "sabe.MRAssemblerTmp"
+	// will be created in the current working directory to hold intermediate
+	// results from the map-reduce passes.
 	
 	public boolean run(Path inputPath, Path outputPath) 
 			throws IOException, InterruptedException, ClassNotFoundException {
@@ -62,12 +98,15 @@ public class MRAssembler {
 		conf.setInt(MRMerVertex.CONFIG_MER_LENGTH, vertexMerLength);
 		conf.setBoolean(MRBuildVertices.CONFIG_PARTITION_BRANCHES_CHAINS, true);
 		conf.setInt(MRBuildVertices.CONFIG_COVERAGE, coverage);
+		conf.setInt(MRCompressChains.CONFIG_TERMINATION_COUNT, 1);
 
 		Job buildJob = Job.getInstance(conf);
 		buildJob.setJobName("mrassemblerbuild");
 		
 		Path buildInputPath = inputPath;
-		Path buildOutputPath = new Path("MRAssemblerTmp");
+		Path buildOutputPath = new Path("sabe.MRAssemblerTmp");
+
+		System.out.println("sabe.MRAssembler starting vertex construction");
 
 		MRBuildMerVertices.setupJob(buildJob, buildInputPath, buildOutputPath);	
 		
@@ -85,6 +124,8 @@ public class MRAssembler {
 		while (keepGoing) {
 			Job compressJob = Job.getInstance(conf);
 			compressJob.setJobName("mrassemblercompress");
+			
+			System.out.println("sabe.MRAssembler starting compression iteration " + iter);
 
 			MRCompressMerChains.setupIterationJob(compressJob, compressInputPath, compressOutputPath);
 			
@@ -94,6 +135,8 @@ public class MRAssembler {
 			iter++;
 			keepGoing = MRCompressChains.continueIteration(compressJob, compressInputPath, compressOutputPath);
 		}
+		
+		System.out.println("sabe.MRAssembler made " + iter + " compression iterations");
 		
 		//
 		
@@ -120,9 +163,13 @@ public class MRAssembler {
 		return true;
 	}
 	
+	// Build the graph after compressing chains.
+	
 	protected Graph buildCompressedGraph(Configuration conf, FileSystem fileSystem, 
 			Path branchPath, Path chainPath) 
 			throws IOException, InterruptedException {
+		System.out.println("sabe.MRAssembler starting graph construction");
+
 		ArrayList<MRMerVertex> vertices = new ArrayList<MRMerVertex>();
 		
 		FileStatus[] branchFiles = fileSystem.listStatus(branchPath);
@@ -133,19 +180,16 @@ public class MRAssembler {
 		for (FileStatus status : chainFiles)
 			readVertices(status, vertices, conf);
 		
-		/// HEY!! Debugging output
-		for (MRVertex vertex : vertices) 
-			System.out.println(vertex.toDisplayString());
-		
 		return new Graph(vertices);
 	}
 
+	// Read values from the specified FileStatus, create MRMerVertex instances from the values
+	// and place them in the ArrayList.
+	
 	private void readVertices(FileStatus status, ArrayList<MRMerVertex> vertices, Configuration conf)
 			throws IOException {
 		Path path = status.getPath();
 		if (path.getName().startsWith("part")) {
-			System.out.println(path); 
-			
 		    SequenceFile.Reader reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(path));
 		    IntWritable key = new IntWritable();
 		    BytesWritable value = new BytesWritable();
@@ -155,12 +199,33 @@ public class MRAssembler {
 		}
 	}
 	
+	// A directed graph built from MRMerVertex instances.  The underlying representation
+	// is a digraph.BasicDigraph.
+	
 	protected class Graph {
+		
+		// Construct the graph from the vertices.
+		
 		public Graph(ArrayList<MRMerVertex> vertices) {
+			
+			// The MRMerVertices have a wide range of IDs, since each ID is an encoding
+			// of a (k-1)-mer.  For the digraph.BasicDigraph, vertices will have IDs
+			// that are consecutive integers starting at 0.  These arrays map from
+			// those integers to the Mers and MerStrings (resulting from chain compression)
+			// for the vertices.
+			
 			mers = new int[vertices.size()];
 			merStrings = new MerString[vertices.size()];
 			
+			// The vertices need to have their edges remapped, too.  This HashMap maps
+			// from (k-1)-mer IDs to new digraph.BasicDigraph IDs to facilitate the
+			// new edges.
+			
 			HashMap<Integer, Integer> merToIndex = new HashMap<Integer, Integer>(vertices.size());
+			
+			// The SingleRepetitions class needs an array indicating what vertices are 
+			// branches (so it can avoid computing that status itself).
+			
 			boolean[] isBranch = new boolean[vertices.size()];
 			
 			MRMerVertex source = null;
@@ -170,10 +235,6 @@ public class MRAssembler {
 			for (MRMerVertex vertex : vertices) {
 				if (vertex.getIsSource()) {
 					
-					// HEY!! Debugging output
-					if (source == null)
-						System.out.println("** " + i + " is source **");
-					
 					if (source == null)
 						source = vertex;
 					// TODO: else handle multiple sources/sinks somehow.
@@ -181,51 +242,43 @@ public class MRAssembler {
 				
 				if (vertex.getIsSink()) {
 					
-					// HEY!! Debugging output
-					if (sink == null)
-						System.out.println("** " + i + " is sink **");
-					
 					if (sink == null)
 						sink = vertex;
 					// TODO: else handle multiple sources/sinks somehow.
 				}
 
+				// The digraph.EulerPaths class expects the source to have index 0.
 				int j = (vertex == source) ? 0 : i++;
+				
 				mers[j] = vertex.getId();
 				merStrings[j] = vertex.getMerString();
 				merToIndex.put(mers[j], j);
 				isBranch[j] = vertex.getIsBranch();
-				
-				// HEY!! Debugging output
-				if (merStrings[j] != null)
-					System.out.println("* " + j + ": mer " + mers[j] 
-							+ " " + merStrings[j].toDisplayString() + " *");
-				else
-					System.out.println("* " + j + ": mer " + mers[j] 
-							+ " " + Mer.fromInt(mers[j], vertexMerLength) + " *");
 			}
+			
+			// Create the graph of the vertices with the new IDs.
 			
 			graph = new BasicDigraph(vertices.size(), Digraph.EdgeMultiples.ENABLED);
 			
 			for (MRMerVertex vertex : vertices) {
 				int j = merToIndex.get(vertex.getId());
-				System.out.print("** " + j + ": ");
+				
+				// Add the edges with the new IDs.
 				
 				MRVertex.AdjacencyIterator it = vertex.createToAdjacencyIterator();
 				for (int to = it.begin(); !it.done(); to = it.next()) {
 					BasicDigraph.Edge edge = new BasicDigraph.Edge(merToIndex.get(to).intValue());
 					graph.addEdge(j, edge);
-					
-					// HEY!! Debugging output
-					System.out.print(edge.getTo() + " ");
 				}
-				
-				// HEY!! Debugging output
-				System.out.print("\n");
 			}
+			
+			System.out.println("sabe.MRAssembler starting repetition rectification");
 			
 			SingleRepetitions.rectify(graph, coverage, isBranch);
 
+			// There must be an edge from the sink to the source for
+			// digraph.EulerPaths to work correctly.
+			
 			addedSinkSourceEdge = false;
 			if ((source != null) && (sink != null)) {
 				int from = merToIndex.get(sink.getId()).intValue();
@@ -233,18 +286,15 @@ public class MRAssembler {
 				graph.addEdge(from, new BasicDigraph.Edge(to));
 				addedSinkSourceEdge = true;
 			}
-			
-			// HEY!! Debugging output
-			for (int v = 0; v < graph.getVertexCapacity(); v++) {
-				BasicDigraph.AdjacencyIterator it = graph.createAdjacencyIterator(v);
-				System.out.print(v + ": ");
-				for (BasicDigraph.Edge to = it.begin(); !it.done(); to = it.next())
-					System.out.print(to.getTo() + " ");
-				System.out.print("\n");
-			}
 		}
 		
+		// Assemble the final sequence and return it as a String.  There ought to be
+		// jus one String, but the return value allows for the possibility of more
+		// than one, just in case.
+		
 		public ArrayList<String> assemble() {
+			System.out.println("sabe.MRAssembler starting final assembly");
+
 			ArrayList<String> result = new ArrayList<String>();
 			
 			EulerPaths<BasicDigraph.Edge> euler = new EulerPaths<BasicDigraph.Edge>(graph);
@@ -253,11 +303,6 @@ public class MRAssembler {
 			for (ArrayDeque<Integer> path : paths) {			
 				if (addedSinkSourceEdge)
 					path.pollLast();
-				
-				// HEY!! Debugging output
-				for (int v : path)
-					System.out.print(v + " ");
-				System.out.print("\n");
 				
 				String seq = new String();
 				for (int i : path) {

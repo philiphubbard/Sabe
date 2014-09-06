@@ -28,7 +28,7 @@ package com.philiphubbard.sabe;
 
 public class SabeTest {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) {		
 		MerTest.test();
 		MerStringTest.test();
 		BasicAssemblerTest.test();

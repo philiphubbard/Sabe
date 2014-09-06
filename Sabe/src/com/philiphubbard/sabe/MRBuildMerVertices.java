@@ -33,11 +33,9 @@ import org.apache.hadoop.mapreduce.Job;
 import com.philiphubbard.digraph.MRBuildVertices;
 import com.philiphubbard.digraph.MRVertex;
 
-// A mapper and reducer for a Hadoop map-reduce algorithm to convert a set of
-// "read" strings into a De Bruijn graph whose vertices are the (k-1) mer substrings
-// of the reads and whose edges correspond to the k-mer overlaps between adjacent
-// substrings.  The output is a file containing strings for the MRVertex representation
-// of the graph.  This class builds on the MRBuildVertices class.
+// A class derived from digraph.MRBuildVertices, specializing that class's
+// mapper to build instances of the MRMerVertex class, derived from MRVertex.
+// The input to the mapper is a set of "read" strings.
 
 public class MRBuildMerVertices extends MRBuildVertices {
 	
@@ -52,9 +50,11 @@ public class MRBuildMerVertices extends MRBuildVertices {
 	
 	// The mapper simply overrides the verticesFromInputValue() function of the
 	// MRCollectVertices.Mapper class, to take input in the form of "read" strings.
+	// Each read should be a line of the input file, ending with "\n".
 	
 	public static class Mapper extends MRBuildVertices.Mapper {
 		
+		@Override
 		protected ArrayList<MRVertex> verticesFromInputValue(Text value, Configuration config) {
 			ArrayList<MRVertex> result = new ArrayList<MRVertex>();
 			
@@ -64,17 +64,13 @@ public class MRBuildMerVertices extends MRBuildVertices {
 			MRMerVertex prev = null;
 			for (int i = 0; i < s.length() - vertexMerLength + 1; i++) {
 				String mer = s.substring(i, i + vertexMerLength);
+				
 				int id = Mer.toInt(mer);
 				MRMerVertex curr = new MRMerVertex(id, config);
 				result.add(curr);
+				
 				if (prev != null)
 					prev.addEdgeTo(id);
-				
-				// HEY!! Debugging output
-				if (prev != null)
-					System.out.println("** MRMerVertex " + prev.getId() + " \"" + Mer.fromInt(prev.getId(), vertexMerLength) + "\" to "
-							+ id + " \"" + Mer.fromInt(id,  vertexMerLength) +"\" **");
-				
 				prev = curr;
 			}
 			

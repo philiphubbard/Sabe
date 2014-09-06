@@ -29,18 +29,18 @@ import com.philiphubbard.digraph.BasicDigraph;
 import com.philiphubbard.digraph.Digraph;
 import com.philiphubbard.digraph.EulerPaths;
 
-// A class to assemble sequences from a list of "reads".
+// A class to assemble genomic sequences from a list of "reads".
 // The algorithm breaks each read string into substrings of length
 // k-1.  These (k-1)-mers are the vertices of a De Bruijn graph,
 // and the edges correspond to the k-mers that are the overlap of
 // the adjacent substrings of length k-1.  The sequence is assembled
 // by finding the Euler tour of this graph, the tour that visits each
 // edge exactly once.  (Hence the name of the package, "Sequence Assembly
-// By Euler tours.")  This implementation does not use Hadoop.
-
-// TODO: The algorithm needs to handle errors in the reads.
-// TODO: The algorithm needs heuristics to handle graphs that
-// do not have a complete Euler tours.
+// By Euler tours.")  This implementation does not use Hadoop, and is
+// very basic in that it:
+// * does not handle errors;
+// * does not handle repeats (longer than k-1 base pairs);
+// * does not handle graphs that do not have a complete Euler tour.
 
 public class BasicAssembler {
 	
@@ -101,9 +101,6 @@ public class BasicAssembler {
 		int source = -1;
 		int sink = -1;
 		
-		// TODO: Add heuristics to handle the case of multiples sources
-		// and/or sinks.
-		
 		boolean multipleSources = false;
 		boolean multipleSinks = false;
 		
@@ -119,6 +116,8 @@ public class BasicAssembler {
 				sink = v;
 			}
 		}
+		
+		assert (!multipleSources && !multipleSinks);
 		
 		addedSinkSourceEdge = ((source != -1) && (sink != -1));
 		if (addedSinkSourceEdge)

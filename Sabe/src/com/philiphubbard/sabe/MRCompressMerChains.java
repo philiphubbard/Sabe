@@ -32,6 +32,10 @@ import org.apache.hadoop.mapreduce.Job;
 import com.philiphubbard.digraph.MRCompressChains;
 import com.philiphubbard.digraph.MRVertex;
 
+// A class derived from digraph.MRCompressChains, specializing that class'
+// mapper and reducer to create instances of the MRMerVertex class, derived
+// from MRVertex.
+
 public class MRCompressMerChains extends MRCompressChains {
 	
 	public static void setupIterationJob(Job job, Path inputPathOrig, Path outputPathOrig)
@@ -45,26 +49,22 @@ public class MRCompressMerChains extends MRCompressChains {
 
 	public static class Mapper extends MRCompressChains.Mapper {
 
+		// The mapper simply defines the virtual function to create MRMerVertex instances.
+		
+		@Override
 		protected MRVertex createMRVertex(BytesWritable value, Configuration config) {
-			MRMerVertex vertex = new MRMerVertex(value, config);
-			
-			// HEY!! Debugging output
-			System.out.println("** createMRVertex(); created " + vertex.toDisplayString() + " **");
-			
-			return vertex;
+			return new MRMerVertex(value, config);
 		}
 		
 	}
 
 	public static class Reducer extends MRCompressChains.Reducer {
 
+		// The reducer simply defines the virtual funciton to create MRMerVertex instances.
+		
+		@Override
 		protected MRVertex createMRVertex(BytesWritable value, Configuration config) {
-			MRMerVertex vertex = new MRMerVertex(value, config);
-			
-			// HEY!! Debugging output
-			System.out.println("** createMRVertex(); created " + vertex.toDisplayString() + " **");
-			
-			return vertex;
+			return new MRMerVertex(value, config);
 		}
 
 	}

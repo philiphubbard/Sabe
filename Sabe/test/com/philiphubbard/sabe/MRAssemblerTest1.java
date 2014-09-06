@@ -34,6 +34,10 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 
+// A sample driver application for running the MRAssembler class with Hadoop.
+// The test data in this case is a simple set of short reads, with no errors
+// or repetitions, yielding a final sequence that is pretty short.
+
 public class MRAssemblerTest1 {
 	
 	public static void main(String[] args) 
@@ -60,7 +64,7 @@ public class MRAssemblerTest1 {
 		
 		ArrayList<Text> reads = new ArrayList<Text>();
 		
-		// AATTCGGCCTTCGGCAT
+		// Goal: AATTCGGCCTTCGGCAT
 
 		reads.add(new Text("AATTCGGC\n"));
 		reads.add(new Text("CTTCGGCAT\n"));

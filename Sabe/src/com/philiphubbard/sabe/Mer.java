@@ -23,12 +23,12 @@
 package com.philiphubbard.sabe;
 
 // Utility routines for converting a k-mer string into a numerical index
-// and vice-versa.  Since a mer can contain only the characters "A", "C",
+// and vice-versa.  Since a k-mer can contain only the characters "A", "C",
 // "G" and "T", the mapping involves using two bits for each character.
 
 public class Mer {
 	
-	// Returns the numerical index from the specified mer.
+	// Returns the numerical index from the specified k-mer.
 	// Throws IllegalArgumentException if the mer is longer than what can be encoded
 	// in a 32-bit signed int, or if the mer contains characters other than "A", "C", 
 	// "G", "T" (or the lower-case equivalents).
@@ -49,14 +49,14 @@ public class Mer {
 			else if (mer.charAt(i) == 'T')
 				result |= 0x3;
 			else if (mer.charAt(i) != 'A')
-				throw new IllegalArgumentException("Mer.toInt(): mer contains illegal character \'" 
+				throw new IllegalArgumentException("Mer.toInt(): k-mer contains illegal character \'" 
 						+ mer.charAt(i) + "\' [" + (int) mer.charAt(i) + "]");
 		}
 
 		return result;
 	}
 	
-	// Returns the right-most characters of string mer from the specified numerical index.
+	// Returns the right-most characters of string k-mer from the specified numerical index.
 	// The length argument specifies how many characters to return.
 	// Throws IllegalArgumentException if the length is longer than what can be encoded
 	// in a 32-bit signed int.
