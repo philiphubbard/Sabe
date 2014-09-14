@@ -29,39 +29,39 @@ import java.util.List;
 import com.philiphubbard.digraph.BasicDigraph;
 import com.philiphubbard.digraph.Digraph;
 
-public class SingleRepetitionsTest {
+public class RepeatsTest {
 	
 	public static void test() {
-		System.out.println("Testing SingleRepetitions:");
+		System.out.println("Testing single repeats:");
 		
 		test1();
 		test2();
 		test3();
 
-		System.out.println("SingleRepetitions passed.");
+		System.out.println("Single repeats passed.");
 	}
 	
 	private static void test1() {
-		System.out.println("SingleRepetitions test 1:");
+		System.out.println("Single repeats test 1:");
 		
 		BasicDigraph graph = new BasicDigraph(6, Digraph.EdgeMultiples.ENABLED);
 		
-		// A simple graph with single coverage (so single repetitions involve two edges)
-		// and no errors.
+		// A simple graph with no errors and single coverage, so "single repeats" 
+		// (repetitive sections repeated once) involve two edges.
 		
 		int coverage = 1;
 		
 		graph.addEdge(0, new BasicDigraph.Edge(1));
 		
-		// 1->2 is a repetition.  The loop-back path to start the second instance is
-		// 2->3->4->3->4->1; note that the loop-back path has a repetition, too.
+		// 1->2 is a repeat.  The loop-back path to start the second instance is
+		// 2->3->4->3->4->1; note that the loop-back path has a repeat, too.
 		
 		graph.addEdge(1, new BasicDigraph.Edge(2));
 		graph.addEdge(1, new BasicDigraph.Edge(2));
 		
 		graph.addEdge(2, new BasicDigraph.Edge(3));
 		
-		// 3->4 is a repetition.  The loop-back path is 4->3.
+		// 3->4 is a repeat.  The loop-back path is 4->3.
 		
 		graph.addEdge(3, new BasicDigraph.Edge(4));
 		graph.addEdge(3, new BasicDigraph.Edge(4));
@@ -80,7 +80,7 @@ public class SingleRepetitionsTest {
 		isBranch[4] = true;
 		isBranch[5] = false;
 		
-		SingleRepetitions.rectify(graph, coverage, isBranch);
+		Repeats.rectifySingle(graph, coverage, isBranch);
 		
 		assert (edgesEqual(graph, 0, Arrays.asList(1)));
 		assert (edgesEqual(graph, 1, Arrays.asList(2, 2)));
@@ -89,11 +89,11 @@ public class SingleRepetitionsTest {
 		assert (edgesEqual(graph, 4, Arrays.asList(1, 3)));
 		assert (edgesEqual(graph, 5, null));
 		
-		System.out.println("SingleRepetitions test 1 passed.");
+		System.out.println("Single repeats test 1 passed.");
 	}
 
 	private static void test2() {
-		System.out.println("SingleRepetitions test 2:");
+		System.out.println("Single repeats test 2:");
 
 		BasicDigraph graph = new BasicDigraph(6, Digraph.EdgeMultiples.ENABLED);
 		
@@ -106,8 +106,8 @@ public class SingleRepetitionsTest {
 		graph.addEdge(0, new BasicDigraph.Edge(1));
 		graph.addEdge(0, new BasicDigraph.Edge(1));
 		
-		// No errors on the repetition 1->2.  Recall that the loop-back path is
-		// 2->3->4->3->4->1 (containing a repetition itself).
+		// No errors on the repeat 1->2.  Recall that the loop-back path is
+		// 2->3->4->3->4->1 (containing a repeat itself).
 		
 		graph.addEdge(1, new BasicDigraph.Edge(2));
 		graph.addEdge(1, new BasicDigraph.Edge(2));
@@ -122,7 +122,7 @@ public class SingleRepetitionsTest {
 		graph.addEdge(2, new BasicDigraph.Edge(3));
 		graph.addEdge(2, new BasicDigraph.Edge(3));
 		
-		// Two errors: two edges missing from the repetition 3->4.
+		// Two errors: two edges missing from the repeat 3->4.
 		
 		graph.addEdge(3, new BasicDigraph.Edge(4));
 		graph.addEdge(3, new BasicDigraph.Edge(4));
@@ -153,7 +153,7 @@ public class SingleRepetitionsTest {
 		isBranch[4] = true;
 		isBranch[5] = false;
 		
-		SingleRepetitions.rectify(graph, coverage, isBranch);
+		Repeats.rectifySingle(graph, coverage, isBranch);
 		
 		assert (edgesEqual(graph, 0, Arrays.asList(1)));
 		assert (edgesEqual(graph, 1, Arrays.asList(2, 2)));
@@ -162,11 +162,11 @@ public class SingleRepetitionsTest {
 		assert (edgesEqual(graph, 4, Arrays.asList(1, 3)));
 		assert (edgesEqual(graph, 5, null));
 		
-		System.out.println("SingleRepetitions test 2 passed.");
+		System.out.println("Single repeats test 2 passed.");
 	}
 
 	private static void test3() {
-		System.out.println("SingleRepetitions test 3:");
+		System.out.println("Single repeats test 3:");
 		
 		BasicDigraph graph = new BasicDigraph(17, Digraph.EdgeMultiples.ENABLED);
 		
@@ -185,7 +185,7 @@ public class SingleRepetitionsTest {
 		graph.addEdge(1, new BasicDigraph.Edge(2));
 		graph.addEdge(1, new BasicDigraph.Edge(2));
 		
-		// One error: one edge missing from the first part of the repetition 2->3->4.  
+		// One error: one edge missing from the first part of the repeat 2->3->4.  
 		// The loop-back path is 4->5->6->2.
 		
 		graph.addEdge(2, new BasicDigraph.Edge(3));
@@ -194,7 +194,7 @@ public class SingleRepetitionsTest {
 		graph.addEdge(2, new BasicDigraph.Edge(3));
 		graph.addEdge(2, new BasicDigraph.Edge(3));
 		
-		// No errors in the second part of the repetition 2->3->4.
+		// No errors in the second part of the repeat 2->3->4.
 		
 		graph.addEdge(3, new BasicDigraph.Edge(4));
 		graph.addEdge(3, new BasicDigraph.Edge(4));
@@ -221,7 +221,7 @@ public class SingleRepetitionsTest {
 		graph.addEdge(6, new BasicDigraph.Edge(2));
 		graph.addEdge(6, new BasicDigraph.Edge(2));
 		
-		// No errors on the first part of the repetition 4->7->8.  
+		// No errors on the first part of the repeat 4->7->8.  
 		// The loop-back path is 8->9->10->4.
 		
 		graph.addEdge(4, new BasicDigraph.Edge(7));
@@ -231,7 +231,7 @@ public class SingleRepetitionsTest {
 		graph.addEdge(4, new BasicDigraph.Edge(7));
 		graph.addEdge(4, new BasicDigraph.Edge(7));
 		
-		// Two errors: two missing edges the second part of the repetition
+		// Two errors: two missing edges the second part of the repeat
 		// 4->7->8.
 		
 		graph.addEdge(7, new BasicDigraph.Edge(8));
@@ -267,8 +267,8 @@ public class SingleRepetitionsTest {
 		graph.addEdge(11, new BasicDigraph.Edge(12));
 		graph.addEdge(11, new BasicDigraph.Edge(12));
 		
-		// No errors on the first part of the repetition
-		// 8->13->14->15->16.  Note that this repetition is its own
+		// No errors on the first part of the repeat
+		// 8->13->14->15->16.  Note that this repeat is its own
 		// loop-back path to 8.
 		
 		graph.addEdge(8, new BasicDigraph.Edge(13));
@@ -287,7 +287,7 @@ public class SingleRepetitionsTest {
 		graph.addEdge(13, new BasicDigraph.Edge(14));
 		graph.addEdge(13, new BasicDigraph.Edge(14));
 		
-		// One error: one extra edge for this repetition.
+		// One error: one extra edge for this repeat.
 		
 		graph.addEdge(14, new BasicDigraph.Edge(15));
 		graph.addEdge(14, new BasicDigraph.Edge(15));
@@ -297,7 +297,7 @@ public class SingleRepetitionsTest {
 		graph.addEdge(14, new BasicDigraph.Edge(15));
 		graph.addEdge(14, new BasicDigraph.Edge(15));
 		
-		// One error: one edge missing from this repetition.
+		// One error: one edge missing from this repeat.
 		
 		graph.addEdge(15, new BasicDigraph.Edge(16));
 		graph.addEdge(15, new BasicDigraph.Edge(16));
@@ -305,7 +305,7 @@ public class SingleRepetitionsTest {
 		graph.addEdge(15, new BasicDigraph.Edge(16));
 		graph.addEdge(15, new BasicDigraph.Edge(16));
 		
-		// Two errors: two edges missing from this repetition.
+		// Two errors: two edges missing from this repeat.
 		
 		graph.addEdge(16, new BasicDigraph.Edge(8));
 		graph.addEdge(16, new BasicDigraph.Edge(8));
@@ -330,7 +330,7 @@ public class SingleRepetitionsTest {
 		isBranch[15] = false;
 		isBranch[16] = false;
 		
-		SingleRepetitions.rectify(graph, coverage, isBranch);
+		Repeats.rectifySingle(graph, coverage, isBranch);
 		
 		assert (edgesEqual(graph, 0, Arrays.asList(1)));
 		assert (edgesEqual(graph, 1, Arrays.asList(2)));
@@ -350,7 +350,7 @@ public class SingleRepetitionsTest {
 		assert (edgesEqual(graph, 15, Arrays.asList(16, 16)));
 		assert (edgesEqual(graph, 16, Arrays.asList(8, 8)));
 
-		System.out.println("SingleRepetitions test 3 passed.");
+		System.out.println("Single repeats test 3 passed.");
 	}
 	
 	// Returns true if the specified vertex in the specified graph has edges to the expected

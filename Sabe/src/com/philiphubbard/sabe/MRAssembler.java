@@ -58,13 +58,13 @@ import com.philiphubbard.digraph.MRVertex;
 // once.  (Hence the name of the package, "Sequence Assembly By Euler tours.")
 //
 // The implementation includes basic techniques to handle errors in the
-// initial reads and repeated substrings in the sequence.  Both techniques
-// depend on the initial reads containing duplicate coverage for the entire
-// sequence.  Duplicate coverage causes the graph to contain edge multiples.
-// Error handling involves discarding vertices with fewer edges than would be
-// expected given the coverage.  Repetition handling involves making two extra
-// sequential passes over the reduced graph to identify chains whose edge
-// multiples indicate they must be repetitions given the coverage.
+// initial reads and repeated substrings or "repeates" in the sequence.  Both 
+// techniques depend on the initial reads containing duplicate coverage for 
+// the entire sequence.  Duplicate coverage causes the graph to contain edge 
+// multiples.  Error handling involves discarding vertices with fewer edges 
+// than would be expected given the coverage.  Repeat handling involves making 
+// two extra sequential passes over the reduced graph to identify chains whose 
+// edge multiples indicate they must be repeats given the coverage.
 
 public class MRAssembler {
 	
@@ -223,8 +223,8 @@ public class MRAssembler {
 			
 			HashMap<Integer, Integer> merToIndex = new HashMap<Integer, Integer>(vertices.size());
 			
-			// The SingleRepetitions class needs an array indicating what vertices are 
-			// branches (so it can avoid computing that status itself).
+			// The Repeats class needs an array indicating what vertices are branches 
+			// (so it can avoid computing that status itself).
 			
 			boolean[] isBranch = new boolean[vertices.size()];
 			
@@ -272,9 +272,9 @@ public class MRAssembler {
 				}
 			}
 			
-			System.out.println("sabe.MRAssembler starting repetition rectification");
+			System.out.println("sabe.MRAssembler starting rectification of repeats");
 			
-			SingleRepetitions.rectify(graph, coverage, isBranch);
+			Repeats.rectifySingle(graph, coverage, isBranch);
 
 			// There must be an edge from the sink to the source for
 			// digraph.EulerPaths to work correctly.

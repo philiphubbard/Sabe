@@ -36,7 +36,7 @@ import org.apache.hadoop.io.Text;
 
 // A sample driver application for running the MRAssembler class with Hadoop.
 // The test data in this case is a simple set of short reads, with no errors
-// or repetitions, yielding a final sequence that is pretty short.
+// or repetitive sections, yielding a final sequence that is pretty short.
 
 public class MRAssemblerTest1 {
 	
