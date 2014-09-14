@@ -31,8 +31,8 @@ import com.philiphubbard.digraph.StrongComponents;
 
 // A class to clean up or rectify a digraph.BasicDigraph with edge multiples that 
 // represents Euler paths with repetitive sections, also known as "repeats".
-// Currently, the code handles only "single repeats", which is a section that is
-// repeated exactly once (i.e., that occurs as two instances); for example, in the 
+// Currently, the code handles only "single repeats", which are sections that are
+// repeated exactly once (i.e., that occur as two instances); for example, in the 
 // path A -> X -> Y -> Z -> B -> X -> Y -> Z -> C, the single repeat is the section
 // X -> Y -> Z.  The graph containing this single repeat will have edge multiples, 
 // two edges from X to Y and from Y to Z.  Note that a graph can contain multiple 
