@@ -146,12 +146,14 @@ public class MRAssembler {
 		FileSystem fileSystem = FileSystem.get(conf);
 		
 		Graph graph = buildCompressedGraph(conf, fileSystem, branchPath, chainPath);
-		ArrayList<String> result = graph.assemble();
+		if (graph != null) {
+			ArrayList<String> result = graph.assemble();
 		
-		FSDataOutputStream out = fileSystem.create(outputPath);
-		for (String seq : result) {
-			out.writeBytes(seq);
-			out.writeBytes("\n");
+			FSDataOutputStream out = fileSystem.create(outputPath);
+			for (String seq : result) {
+				out.writeBytes(seq);
+				out.writeBytes("\n");
+			}
 		}
 		
 		//
@@ -179,6 +181,23 @@ public class MRAssembler {
 		FileStatus[] chainFiles = fileSystem.listStatus(chainPath);
 		for (FileStatus status : chainFiles)
 			readVertices(status, vertices, conf);
+		
+		// Check for a malformed graph, that does not have exactly one source and sink.
+		// Return null in this case.
+		
+		int numSources = 0;
+		int numSinks = 0;
+		for (MRMerVertex vertex : vertices) {
+			if (vertex.getIsSource()) 
+				numSources++;
+			if (vertex.getIsSink())
+				numSinks++;	
+		}
+		if ((numSources != 1) || (numSinks != 1)) {
+			System.out.println("Malformed graph: number of sources = " + numSources
+					+ ", number of sinks = " + numSinks);
+			return null;
+		}
 		
 		return new Graph(vertices);
 	}
@@ -237,14 +256,12 @@ public class MRAssembler {
 					
 					if (source == null)
 						source = vertex;
-					// TODO: else handle multiple sources/sinks somehow.
 				}
 				
 				if (vertex.getIsSink()) {
 					
 					if (sink == null)
 						sink = vertex;
-					// TODO: else handle multiple sources/sinks somehow.
 				}
 
 				// The digraph.EulerPaths class expects the source to have index 0.
